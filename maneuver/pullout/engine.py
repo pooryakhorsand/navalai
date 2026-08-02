@@ -1,0 +1,330 @@
+import numpy as np
+
+try:
+	from numba import njit
+	
+	NUMBA_AVAILABLE = True
+except Exception:
+	NUMBA_AVAILABLE = False
+	
+	
+	def njit(*dargs, **dkwargs):
+		if dargs and callable(dargs[0]) and len(dargs) == 1 and not dkwargs:
+			return dargs[0]
+		
+		def wrapper(func):
+			return func
+		
+		return wrapper
+
+_COEF_ORDER = [
+	"Xudot", "Yvdot", "Nvdot", "Xu", "Yrdot", "Nrdot", "Xuu", "Yv", "Nv",
+	"Xuuu", "Yr", "Nr", "Xvv", "Yvvv", "Nvvv", "Xrr", "Yvvr", "Nvvr",
+	"Xdd", "Yvu", "Nvu", "Xudd", "Yru", "Nru", "Xrv", "Yd", "Nd", "Xvd",
+	"Yddd", "Nddd", "Xuvd", "Yud", "Nud", "Yuud", "Nuud", "Yvdd", "Nvdd",
+	"Yvvd", "Nvvd", "Y0", "N0", "Y0u", "N0u", "Y0uu", "N0uu",
+]
+
+
+@njit(cache=True, fastmath=True)
+def _simulate_pullout_branch_core(x0, h, N, T_rudder, target_delta, U0, L, m,
+                                  Iz, xG, coef):
+	(
+		Xudot, Yvdot, Nvdot, Xu, Yrdot, Nrdot, Xuu, Yv, Nv,
+		Xuuu, Yr, Nr, Xvv, Yvvv, Nvvv, Xrr, Yvvr, Nvvr,
+		Xdd, Yvu, Nvu, Xudd, Yru, Nru, Xrv, Yd, Nd, Xvd,
+		Yddd, Nddd, Xuvd, Yud, Nud, Yuud, Nuud, Yvdd, Nvdd,
+		Yvvd, Nvvd, Y0, N0, Y0u, N0u, Y0uu, N0uu
+	) = coef
+	
+	m11 = m - Xudot
+	m22 = m - Yvdot
+	m23 = m * xG - Yrdot
+	m32 = m * xG - Nvdot
+	m33 = Iz - Nrdot
+	detM22 = m22 * m33 - m23 * m32
+	
+	xout = np.empty((N + 1, 9), dtype=np.float64)
+	x = x0.copy()
+	
+	inv_l = 1.0 / L
+	inv_l2 = inv_l * inv_l
+	
+	for i in range(N + 1):
+		time = i * h
+		rudder = target_delta if time < T_rudder else 0.0
+		
+		U = np.sqrt((U0 + x[0]) * (U0 + x[0]) + x[1] * x[1])
+		if U < 1e-12:
+			U = 1e-12
+		
+		delta_c = -rudder
+		
+		u = x[0] / U
+		v = x[1] / U
+		r = x[2] * L / U
+		psi = x[5]
+		delta = x[6]
+		
+		u2 = u * u
+		u3 = u2 * u
+		v2 = v * v
+		v3 = v2 * v
+		r2 = r * r
+		d2 = delta * delta
+		d3 = d2 * delta
+		
+		X_force = (
+				Xu * u
+				+ Xuu * u2
+				+ Xuuu * u3
+				+ Xvv * v2
+				+ Xrr * r2
+				+ Xrv * r * v
+				+ Xdd * d2
+				+ Xudd * u * d2
+				+ Xvd * v * delta
+				+ Xuvd * u * v * delta
+		)
+		
+		Y_force = (
+				Yv * v
+				+ Yr * r
+				+ Yvvv * v3
+				+ Yvvr * v2 * r
+				+ Yvu * v * u
+				+ Yru * r * u
+				+ Yd * delta
+				+ Yddd * d3
+				+ Yud * u * delta
+				+ Yuud * u2 * delta
+				+ Yvdd * v * d2
+				+ Yvvd * v2 * delta
+				+ (Y0 + Y0u * u + Y0uu * u2)
+		)
+		
+		N_force = (
+				Nv * v
+				+ Nr * r
+				+ Nvvv * v3
+				+ Nvvr * v2 * r
+				+ Nvu * v * u
+				+ Nru * r * u
+				+ Nd * delta
+				+ Nddd * d3
+				+ Nud * u * delta
+				+ Nuud * u2 * delta
+				+ Nvdd * v * d2
+				+ Nvvd * v2 * delta
+				+ (N0 + N0u * u + N0uu * u2)
+		)
+		
+		U2 = U * U
+		
+		xdot0 = X_force * (U2 * inv_l) / m11
+		xdot1 = -(-m33 * Y_force + m23 * N_force) * (U2 * inv_l) / detM22
+		xdot2 = (-m32 * Y_force + m22 * N_force) * (U2 * inv_l2) / detM22
+		
+		cpsi = np.cos(psi)
+		spsi = np.sin(psi)
+		
+		xdot3 = (cpsi * (U0 / U + u) - spsi * v) * U
+		xdot4 = (spsi * (U0 / U + u) + cpsi * v) * U
+		xdot5 = r * (U * inv_l)
+		xdot6 = delta_c - delta
+		
+		xout[i, 0] = time
+		xout[i, 1] = x[0]
+		xout[i, 2] = x[1]
+		xout[i, 3] = x[2]
+		xout[i, 4] = x[3]
+		xout[i, 5] = x[4]
+		xout[i, 6] = x[5]
+		xout[i, 7] = x[6]
+		xout[i, 8] = U
+		
+		x[0] = x[0] + h * xdot0
+		x[1] = x[1] + h * xdot1
+		x[2] = x[2] + h * xdot2
+		x[3] = x[3] + h * xdot3
+		x[4] = x[4] + h * xdot4
+		x[5] = x[5] + h * xdot5
+		x[6] = x[6] + h * xdot6
+	
+	return xout
+
+
+class PulloutModel:
+	def __init__(
+			self,
+			U0,
+			L,
+			m,
+			Iz,
+			xG,
+			Xudot,
+			Yvdot,
+			Nvdot,
+			Xu,
+			Yrdot,
+			Nrdot,
+			Xuu,
+			Yv,
+			Nv,
+			Xuuu,
+			Yr,
+			Nr,
+			Xvv,
+			Yvvv,
+			Nvvv,
+			Xrr,
+			Yvvr,
+			Nvvr,
+			Xdd,
+			Yvu,
+			Nvu,
+			Xudd,
+			Yru,
+			Nru,
+			Xrv,
+			Yd,
+			Nd,
+			Xvd,
+			Yddd,
+			Nddd,
+			Xuvd,
+			Yud,
+			Nud,
+			Yuud,
+			Nuud,
+			Yvdd,
+			Nvdd,
+			Yvvd,
+			Nvvd,
+			Y0,
+			N0,
+			Y0u,
+			N0u,
+			Y0uu,
+			N0uu,
+			delta1=np.radians(20.0),
+			x0=None,
+			h=0.1
+	):
+		if x0 is None:
+			x0 = np.zeros(7, dtype=np.float64)
+		
+		self.x_initial = np.asarray(x0, dtype=np.float64).copy()
+		self.U0 = float(U0)
+		self.L = float(L)
+		self.h = float(h)
+		self.m = float(m)
+		self.Iz = float(Iz)
+		self.xG = float(xG)
+		self.delta1 = float(delta1)
+		
+		local_vars = locals()
+		self.coef = np.array(
+			[float(local_vars[name]) for name in _COEF_ORDER],
+			dtype=np.float64
+		)
+	
+	def simulate_pullout(self, T=600.0):
+		N = int(round(2.0 * float(T) / self.h))
+		if N < 1:
+			N = 1
+		
+		# Execution of positive rudder branch (+delta1)
+		xout_pos = _simulate_pullout_branch_core(
+			self.x_initial,
+			self.h,
+			N,
+			float(T),
+			self.delta1,
+			self.U0,
+			self.L,
+			self.m,
+			self.Iz,
+			self.xG,
+			self.coef
+		)
+		
+		# Execution of negative rudder branch (-delta1)
+		xout_neg = _simulate_pullout_branch_core(
+			self.x_initial,
+			self.h,
+			N,
+			float(T),
+			-self.delta1,
+			self.U0,
+			self.L,
+			self.m,
+			self.Iz,
+			self.xG,
+			self.coef
+		)
+		
+		t_series = xout_pos[:, 0]
+		
+		# Yaw rate in deg/s
+		r_pos = xout_pos[:, 3] * (180.0 / np.pi)
+		r_neg = xout_neg[:, 3] * (180.0 / np.pi)
+		
+		# Heading in deg
+		psi_pos = xout_pos[:, 6] * (180.0 / np.pi)
+		psi_neg = xout_neg[:, 6] * (180.0 / np.pi)
+		
+		# Rudder angle in deg
+		delta_pos = xout_pos[:, 7] * (180.0 / np.pi)
+		delta_neg = xout_neg[:, 7] * (180.0 / np.pi)
+		
+		# Coordinates (X, Y)
+		x_pos = xout_pos[:, 4]
+		y_pos = xout_pos[:, 5]
+		x_neg = xout_neg[:, 4]
+		y_neg = xout_neg[:, 5]
+		
+		# Final residual yaw rates (stability measure)
+		residual_r_pos = float(r_pos[-1])
+		residual_r_neg = float(r_neg[-1])
+		
+		return (
+			t_series,
+			r_pos,
+			r_neg,
+			psi_pos,
+			psi_neg,
+			delta_pos,
+			delta_neg,
+			x_pos,
+			y_pos,
+			x_neg,
+			y_neg,
+			residual_r_pos,
+			residual_r_neg
+		)
+
+
+def warmup_numba():
+	"""
+	Optional warm-up function for Pullout Numba compilation.
+	"""
+	if not NUMBA_AVAILABLE:
+		return
+	
+	x0 = np.zeros(7, dtype=np.float64)
+	coef = np.zeros(len(_COEF_ORDER), dtype=np.float64)
+	
+	_simulate_pullout_branch_core(
+		x0,
+		0.1,
+		1,
+		10.0,
+		0.35,
+		7.0,
+		160.0,
+		0.00798,
+		0.000392,
+		-0.023,
+		coef
+	)

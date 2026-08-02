@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Williamson Turn Simulator — NavalAI{% endblock %}
+{% block meta_description %}Free interactive Williamson Turn simulator for man-overboard recovery using a nonlinear 3-DOF Abkowitz maneuvering model. Analyze phase transitions, recovery quality, and real-time 3D track retracing visualization.{% endblock %}
+{% block og_title %}Williamson Turn Simulator — NavalAI{% endblock %}
+{% block og_description %}Interactive Williamson Turn simulator with recovery metrics, phase tracking, and live 3D track retracing playback.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/williamson/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/williamson/{% endblock %}
+{% block og_image %}{% static 'core/img/williamson.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Williamson Turn Simulator",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive Williamson Turn simulator computing recovery timing, cross-track error, and heading error in a nonlinear 3-DOF model.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'maneuver/css/app_williamson.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Analytical Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="theory-overlay" id="theory-overlay">
+  <div class="theory-modal">
+    <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+    <div class="theory-grid">
+      <div class="theory-left">
+        <span class="theory-tag">Emergency Manoeuvring</span>
+        <h2>Williamson Turn — Precise MOB Recovery</h2>
+        <p class="theory-meta">Three-phase track-retracing manoeuvre — Abkowitz / Norrbin formulation</p>
+
+        <p>The Williamson Turn is the most accurate of the IMO-recommended man-overboard recovery trials. Unlike swift direct turns, it physically retraces the vessel's original track line in reverse, making it highly effective when the casualty is out of direct visual sight.</p>
+
+        <div class="equation-box">
+          <div class="eq-title">Three-Phase Rudder Schedule</div>
+          <div class="eq-math">
+$$
+\delta_{cmd}(t) =
+\begin{cases}
++35^\circ, & \psi &lt; +60^\circ \quad \text{(Phase 1: Initial Turn)} \\
+-35^\circ, & \psi \geq +60^\circ,\; \psi &gt; -130^\circ \quad \text{(Phase 2: Counter Rudder)} \\
+0^\circ, & \psi \leq -130^\circ \quad \text{(Phase 3: Straight Retrace)}
+\end{cases}
+$$
+          </div>
+          <p>The thresholds ($+60^\circ$ and $-130^\circ$) are mathematically calibrated to align the final reciprocal heading ($180^\circ$) exactly with the original baseline track.</p>
+        </div>
+
+        <h3>Key Evaluation Metrics</h3>
+        <p>The success of the track-retracing maneuver is evaluated using five vital dynamic values:</p>
+
+        <div class="equation-box">
+          <div class="eq-title">Recovery Quality Indicators</div>
+          <div class="eq-math">$$ t_1, \quad t_2, \quad t_{opp}, \quad \Delta y, \quad \Delta\psi $$</div>
+          <p><strong>t₁</strong> &amp; <strong>t₂</strong> — Phase transition timestamps. <strong>t<sub>opp</sub></strong> — reciprocal heading crossing time. <strong>Δy</strong> — final cross-track offset error. <strong>Δψ</strong> — heading deviation from reciprocal target.</p>
+        </div>
+
+        <h3>Slew-Rate Rudder Dynamics</h3>
+        <p>The physical limits of steering gears are integrated; commanded inputs transition at a finite rate, introducing system lags that are visible in the rudder telemetry curves.</p>
+      </div>
+
+      <div class="theory-right">
+        <span class="theory-tag">Simulation Workflow</span>
+        <h2>How the Visualiser Works</h2>
+        <p class="theory-meta">Continuous integration · 3D real-time playback</p>
+
+        <div class="component-cards">
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--amber">Phase 1</span>
+              <strong>Hard Rudder Turn</strong>
+            </div>
+            <p>Hard rudder commands ($+35^\circ$) initiate the turn until heading reaches $+60^\circ$. Rendered in <strong>Amber</strong>.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--red">Phase 2</span>
+              <strong>Counter Swing</strong>
+            </div>
+            <p>Rudder swings hard opposite ($-35^\circ$) to check the heading rate down to $-130^\circ$. Rendered in <strong>Coral</strong>.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--teal">Phase 3</span>
+              <strong>Straight Return</strong>
+            </div>
+            <p>Rudder centers to $0^\circ$ as the vessel slips back along the reciprocal track. Rendered in <strong>Teal</strong>.</p>
+          </div>
+        </div>
+
+        <span class="theory-tag" style="margin-top:2rem; display:block;">Operating Guide</span>
+        <h2>Simulation Guide</h2>
+
+        <div class="tutorial-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>Define Ship Coefficients</h4>
+            <p>Modify mass, steering, and hydrodynamic parameters. Default sets represent a classic Mariner-class vessel.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>Run Simulator</h4>
+            <p>Click <strong>Run Simulation</strong> to compute the explicit time integration across all maneuver phases.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>Evaluate Recovery</h4>
+            <p>Check the <strong>Recovery Quality</strong> badge. Examine the precise spatial cross-track error using the 3D viewer or data tables.</p>
+          </div>
+        </div>
+
+        <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="app-workspace">
+  <section class="control-panel">
+    <div class="panel-header">
+      <span class="panel-badge">Manoeuvring · MOB Recovery Trial</span>
+      <h1 class="panel-title">Williamson Turn Solver</h1>
+
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Operational</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-U0">
+          Initial Speed (U₀) <span class="input-val" id="val-U0">7.72 m/s</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-U0" min="2" max="20" step="0.05" value="7.7175">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-rate">
+          Rudder Slew Rate <span class="input-val" id="val-rate">5.0 °/s</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-rate" min="0.5" max="15" step="0.1" value="5.0">
+        <div class="slider-hint">Steering gear physical limitation.</div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-Tmax">
+          Max Sim Time (T<sub>max</sub>) <span class="input-val" id="val-Tmax">1200 s</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-Tmax" min="200" max="2400" step="50" value="1200">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Hull Mass &amp; Inertia</div>
+      <div class="coef-grid coef-grid--3">
+        <div class="coef-input"><label for="c-L">L (m)</label><input id="c-L" type="number" step="any" value="160.93"></div>
+        <div class="coef-input"><label for="c-m">m</label><input id="c-m" type="number" step="any" value="0.00798"></div>
+        <div class="coef-input"><label for="c-xG">x<sub>G</sub></label><input id="c-xG" type="number" step="any" value="-0.023"></div>
+        <div class="coef-input"><label for="c-Iz">I<sub>z</sub></label><input id="c-Iz" type="number" step="any" value="0.000392"></div>
+        <div class="coef-input"><label for="c-h">h (s)</label><input id="c-h" type="number" step="any" value="0.1"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-added">
+        Added Mass <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-added">
+        <div class="coef-input"><label for="c-Xudot">X<sub>u̇</sub></label><input id="c-Xudot" type="number" step="any" value="-0.00042"></div>
+        <div class="coef-input"><label for="c-Yvdot">Y<sub>v̇</sub></label><input id="c-Yvdot" type="number" step="any" value="-0.00748"></div>
+        <div class="coef-input"><label for="c-Nvdot">N<sub>v̇</sub></label><input id="c-Nvdot" type="number" step="any" value="0.00004646"></div>
+        <div class="coef-input"><label for="c-Yrdot">Y<sub>ṙ</sub></label><input id="c-Yrdot" type="number" step="any" value="-0.00009354"></div>
+        <div class="coef-input"><label for="c-Nrdot">N<sub>ṙ</sub></label><input id="c-Nrdot" type="number" step="any" value="-0.000438"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-linear">
+        Linear Damping <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-linear">
+        <div class="coef-input"><label for="c-Xu">X<sub>u</sub></label><input id="c-Xu" type="number" step="any" value="-0.00184"></div>
+        <div class="coef-input"><label for="c-Xuu">X<sub>uu</sub></label><input id="c-Xuu" type="number" step="any" value="-0.0011"></div>
+        <div class="coef-input"><label for="c-Xuuu">X<sub>uuu</sub></label><input id="c-Xuuu" type="number" step="any" value="-0.00215"></div>
+        <div class="coef-input"><label for="c-Yv">Y<sub>v</sub></label><input id="c-Yv" type="number" step="any" value="-0.0116"></div>
+        <div class="coef-input"><label for="c-Nv">N<sub>v</sub></label><input id="c-Nv" type="number" step="any" value="-0.00264"></div>
+        <div class="coef-input"><label for="c-Yr">Y<sub>r</sub></label><input id="c-Yr" type="number" step="any" value="-0.00499"></div>
+        <div class="coef-input"><label for="c-Nr">N<sub>r</sub></label><input id="c-Nr" type="number" step="any" value="-0.00166"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-cross">
+        Cross-Coupling <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-cross">
+        <div class="coef-input"><label for="c-Xvv">X<sub>vv</sub></label><input id="c-Xvv" type="number" step="any" value="-0.00899"></div>
+        <div class="coef-input"><label for="c-Xrr">X<sub>rr</sub></label><input id="c-Xrr" type="number" step="any" value="0.00018"></div>
+        <div class="coef-input"><label for="c-Xrv">X<sub>rv</sub></label><input id="c-Xrv" type="number" step="any" value="0.00798"></div>
+        <div class="coef-input"><label for="c-Yvu">Y<sub>vu</sub></label><input id="c-Yvu" type="number" step="any" value="-0.0116"></div>
+        <div class="coef-input"><label for="c-Nvu">N<sub>vu</sub></label><input id="c-Nvu" type="number" step="any" value="-0.00264"></div>
+        <div class="coef-input"><label for="c-Yru">Y<sub>ru</sub></label><input id="c-Yru" type="number" step="any" value="-0.00499"></div>
+        <div class="coef-input"><label for="c-Nru">N<sub>ru</sub></label><input id="c-Nru" type="number" step="any" value="-0.00166"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-nonlin">
+        Nonlinear Damping <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-nonlin">
+        <div class="coef-input"><label for="c-Yvvv">Y<sub>vvv</sub></label><input id="c-Yvvv" type="number" step="any" value="-0.08078"></div>
+        <div class="coef-input"><label for="c-Nvvv">N<sub>vvv</sub></label><input id="c-Nvvv" type="number" step="any" value="0.01636"></div>
+        <div class="coef-input"><label for="c-Yvvr">Y<sub>vvr</sub></label><input id="c-Yvvr" type="number" step="any" value="0.15356"></div>
+        <div class="coef-input"><label for="c-Nvvr">N<sub>vvr</sub></label><input id="c-Nvvr" type="number" step="any" value="-0.05483"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-rudder">
+        Rudder Coefficients <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-rudder">
+        <div class="coef-input"><label for="c-Xdd">X<sub>δδ</sub></label><input id="c-Xdd" type="number" step="any" value="-0.00095"></div>
+        <div class="coef-input"><label for="c-Xudd">X<sub>uδδ</sub></label><input id="c-Xudd" type="number" step="any" value="-0.0019"></div>
+        <div class="coef-input"><label for="c-Xvd">X<sub>vδ</sub></label><input id="c-Xvd" type="number" step="any" value="0.00093"></div>
+        <div class="coef-input"><label for="c-Xuvd">X<sub>uvδ</sub></label><input id="c-Xuvd" type="number" step="any" value="0.00093"></div>
+        <div class="coef-input"><label for="c-Yd">Y<sub>δ</sub></label><input id="c-Yd" type="number" step="any" value="0.00278"></div>
+        <div class="coef-input"><label for="c-Nd">N<sub>δ</sub></label><input id="c-Nd" type="number" step="any" value="-0.00139"></div>
+        <div class="coef-input"><label for="c-Yddd">Y<sub>δδδ</sub></label><input id="c-Yddd" type="number" step="any" value="-0.0009"></div>
+        <div class="coef-input"><label for="c-Nddd">N<sub>δδδ</sub></label><input id="c-Nddd" type="number" step="any" value="0.00045"></div>
+        <div class="coef-input"><label for="c-Yud">Y<sub>uδ</sub></label><input id="c-Yud" type="number" step="any" value="0.00556"></div>
+        <div class="coef-input"><label for="c-Nud">N<sub>uδ</sub></label><input id="c-Nud" type="number" step="any" value="-0.00278"></div>
+        <div class="coef-input"><label for="c-Yuud">Y<sub>uuδ</sub></label><input id="c-Yuud" type="number" step="any" value="0.00278"></div>
+        <div class="coef-input"><label for="c-Nuud">N<sub>uuδ</sub></label><input id="c-Nuud" type="number" step="any" value="-0.00139"></div>
+        <div class="coef-input"><label for="c-Yvdd">Y<sub>vδδ</sub></label><input id="c-Yvdd" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-Nvdd">N<sub>vδδ</sub></label><input id="c-Nvdd" type="number" step="any" value="0.00013"></div>
+        <div class="coef-input"><label for="c-Yvvd">Y<sub>vvδ</sub></label><input id="c-Yvvd" type="number" step="any" value="0.0119"></div>
+        <div class="coef-input"><label for="c-Nvvd">N<sub>vvδ</sub></label><input id="c-Nvvd" type="number" step="any" value="-0.00489"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-bias">
+        Bias Terms <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-bias">
+        <div class="coef-input"><label for="c-Y0">Y₀</label><input id="c-Y0" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-N0">N₀</label><input id="c-N0" type="number" step="any" value="0.00003"></div>
+        <div class="coef-input"><label for="c-Y0u">Y<sub>0u</sub></label><input id="c-Y0u" type="number" step="any" value="-0.00008"></div>
+        <div class="coef-input"><label for="c-N0u">N<sub>0u</sub></label><input id="c-N0u" type="number" step="any" value="0.00006"></div>
+        <div class="coef-input"><label for="c-Y0uu">Y<sub>0uu</sub></label><input id="c-Y0uu" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-N0uu">N<sub>0uu</sub></label><input id="c-N0uu" type="number" step="any" value="0.00003"></div>
+      </div>
+    </div>
+
+    <div class="input-section run-section">
+      <button class="btn-run" id="btn-run">▶ Run Simulation</button>
+    </div>
+
+    <div class="telemetry-wrapper">
+      <div class="input-label telemetry-title">Recovery Performance</div>
+      <div class="telemetry-deck">
+        <div class="telemetry-item">
+          <span class="telemetry-label">t₁ (ψ = +60°):</span>
+          <span class="telemetry-val telemetry-val--p1" id="t-t1">— s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">t₂ (ψ = −130°):</span>
+          <span class="telemetry-val telemetry-val--p2" id="t-t2">— s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">t<sub>opp</sub> (ψ = 180°):</span>
+          <span class="telemetry-val telemetry-val--p3" id="t-topp">— s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Cross-track Error |Δy|:</span>
+          <span class="telemetry-val" id="t-cte">— m</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Cross-track in L:</span>
+          <span class="telemetry-val" id="t-cte-L">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Heading Error |Δψ|:</span>
+          <span class="telemetry-val" id="t-hdg-err">— °</span>
+        </div>
+        <div class="telemetry-item quality-row">
+          <span class="telemetry-label highlight-text">Recovery Quality:</span>
+          <span class="telemetry-val quality-val" id="t-quality">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Samples:</span>
+          <span class="telemetry-val" id="t-samples">—</span>
+        </div>
+      </div>
+
+      <div class="api-status-bar">
+        <div class="api-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">READY</span>
+        </div>
+        <div class="hud-inline">U₀: <span id="hud-U0">—</span> · Slew: <span id="hud-rate">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace-right">
+    <div class="split-viewport-container">
+      <section class="viewport-container visualizer-panel">
+        <div class="cad-toolbar">
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-play-pause">⏸ Pause</button>
+            <button class="cad-btn" id="btn-restart">↻ Restart</button>
+            <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+            <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+            <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+            <button class="cad-btn" id="btn-download-img">📸 Image</button>
+          </div>
+          <div class="aspect-ratio-hud">
+            Anim: <span id="hud-anim">0.00 s</span> · Phase: <span id="hud-phase">PHASE 1</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div id="canvas-3d-target"></div>
+          <div class="loading-overlay" id="loading-overlay"><div class="loading-spinner"></div></div>
+          <div class="trajectory-legend">
+            <div class="leg-row"><span class="leg-dot leg-dot--mob"></span>MOB casualty (origin)</div>
+            <div class="leg-row"><span class="leg-line leg-line--p1"></span><span>Phase 1 — +35° rudder</span></div>
+            <div class="leg-row"><span class="leg-line leg-line--p2"></span><span>Phase 2 — −35° counter</span></div>
+            <div class="leg-row"><span class="leg-line leg-line--p3"></span><span>Phase 3 — centred / retrace</span></div>
+            <div class="leg-row"><span class="leg-dot leg-dot--release"></span>Phase transitions</div>
+            <div class="leg-row"><span class="leg-dot leg-dot--final"></span>Final position (ψ ≈ 180°)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="viewport-container chart-panel is-hidden">
+        <div class="cad-toolbar chart-toolbar">
+          <div class="chart-title-hud">WILLIAMSON TURN — ANALYTICAL CURVES</div>
+          <div class="cad-actions">
+            <select id="plot-selector" class="cad-select">
+              <option value="trajectory">Trajectory (x – y)</option>
+              <option value="rudder">Rudder — Commanded vs Actual</option>
+              <option value="heading">Heading ψ vs Time</option>
+              <option value="yaw">Yaw Rate r vs Time</option>
+              <option value="speed">Ship Speed U vs Time</option>
+              <option value="surge">Surge u vs Time</option>
+              <option value="sway">Sway v vs Time</option>
+            </select>
+            <button class="cad-btn" id="btn-export-curve-csv">📊 Export CSV</button>
+          </div>
+        </div>
+        <div id="plot-target"></div>
+      </section>
+
+      <section class="viewport-container table-panel is-hidden">
+        <div class="cad-toolbar table-toolbar">
+          <div class="chart-title-hud">FULL TIME-SERIES MATRIX</div>
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-export-full-csv">📊 Export Full Report CSV</button>
+          </div>
+        </div>
+        <div id="table-target">
+          <div class="data-table-empty">Awaiting simulation data — click Run Simulation.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+<script>
+  window.NAVALAI_ASSETS = {
+    williamsonApi: "{% url 'williamson_turn:williamson_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+<script defer src="{% static 'maneuver/js/app_williamson..js' %}"></script>
+{% endblock %}

@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pullout Maneuver Simulator — NavalAI{% endblock %}
+{% block meta_description %}Interactive pullout maneuver simulator for ship course stability using a nonlinear 3-DOF Abkowitz model. Run dual ±rudder cases, compare post-release yaw decay, and inspect stability metrics in real time.{% endblock %}
+{% block og_title %}Pullout Maneuver Simulator — NavalAI{% endblock %}
+{% block og_description %}Interactive pullout simulator with dual ±rudder runs, yaw-rate decay comparison, and course-stability analysis in a 3D visualizer.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/pullout/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/pullout/{% endblock %}
+{% block og_image %}{% static 'core/img/pullout.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Pullout Maneuver Simulator",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive pullout maneuver simulator for course stability analysis using dual rudder cases and yaw-rate decay metrics.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'maneuver/css/app_pullout.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Analytical Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="theory-overlay" id="theory-overlay">
+  <div class="theory-modal">
+    <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+    <div class="theory-grid">
+      <div class="theory-left">
+        <span class="theory-tag">Manoeuvring Dynamics</span>
+        <h2>Pullout / Yaw-Rate Decay Trial</h2>
+        <p class="theory-meta">IMO dynamic-stability test · Nomoto / Norrbin convention</p>
+
+        <p>The pullout manoeuvre is the standard diagnostic for <em>course-keeping stability</em>. The ship is steered with a rudder deflection of magnitude $\delta_1$ for a period $T$. Then the rudder is centred ($\delta = 0$). What happens next reveals the ship's intrinsic dynamic behaviour:</p>
+
+        <div class="equation-box">
+          <div class="eq-title">Rudder Schedule (both runs)</div>
+          <div class="eq-math">$$ \delta(t) = \begin{cases} \pm \delta_1, &amp; 0 \leq t &lt; T \\ 0, &amp; T \leq t \leq 2T \end{cases} $$</div>
+          <p>The simulator runs <strong>both</strong> directions in parallel: $+\delta_1$ and $-\delta_1$, then compares the post-release yaw rates.</p>
+        </div>
+
+        <h3>Reading the Pullout Signature</h3>
+        <p>The yaw rate $r(t)$ during the rudder-released phase $T \leq t \leq 2T$ is the central diagnostic:</p>
+
+        <div class="equation-box">
+          <div class="eq-title">Stability Criterion</div>
+          <div class="eq-math">$$ \text{Stable} \iff r_{+}(2T) \to 0 \text{ and } r_{-}(2T) \to 0 $$</div>
+          <p>A <strong>dynamically stable</strong> hull lets both yaw rates decay to zero after release — the ship straightens out on its own. An <strong>unstable</strong> hull holds a residual yaw rate, indicating a non-zero steady turn must persist (the hallmark of a course-unstable vessel).</p>
+        </div>
+
+        <h3>3-DOF Equations of Motion</h3>
+        <p>The underlying solver is the same nonlinear Abkowitz 3-DOF model used by the turning-circle and zigzag pages — surge, sway, yaw equations driven by a polynomial expansion of $X$, $Y$, $N$ in body-fixed velocities and rudder angle. Two independent integrations run with opposite rudder commands.</p>
+      </div>
+
+      <div class="theory-right">
+        <span class="theory-tag">Simulation Workflow</span>
+        <h2>How the Visualiser Works</h2>
+        <p class="theory-meta">Dual trajectory · live rudder · time-compressed playback</p>
+
+        <div class="component-cards">
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--red">+δ Run</span>
+              <strong>Port Rudder Path</strong>
+            </div>
+            <p>One ship is integrated with rudder $+\delta_1$ held for $T$ seconds, then released. Its trajectory is drawn in <strong>red</strong>.</p>
+          </div>
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--teal">−δ Run</span>
+              <strong>Starboard Rudder Path</strong>
+            </div>
+            <p>A second ship is integrated with rudder $-\delta_1$ held for $T$ seconds, then released. Drawn in <strong>teal</strong>.</p>
+          </div>
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--green">3D View</span>
+              <strong>Two Ships, Live Rudders</strong>
+            </div>
+            <p>Both ships orbit their tracks simultaneously with their rudders pinned to the actual $\delta(t)$ signal — you can see the rudder snap back to zero at $t = T$.</p>
+          </div>
+        </div>
+
+        <span class="theory-tag" style="margin-top:2rem; display:block;">Operating Guide</span>
+        <h2>Simulation Guide</h2>
+
+        <div class="tutorial-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>Set Ship &amp; Coefficients</h4>
+            <p>Pre-loaded Mariner-class defaults produce a textbook stable pullout. Modify any coefficient to investigate stability margins.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>Run the Solver</h4>
+            <p>Click <strong>Run Simulation</strong>. Both directions integrate in parallel for $2T$ seconds and return both yaw-rate histories.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>Inspect Results</h4>
+            <p>The <strong>Pullout Signature</strong> plot shows both yaw rates overlaid — read the post-release decay to assess stability. The trajectory plot shows both ship tracks; the Data Table exports the full numeric record.</p>
+          </div>
+        </div>
+
+        <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="app-workspace">
+  <section class="control-panel">
+    <div class="panel-header">
+      <span class="panel-badge">Manoeuvring · Pullout Stability Trial</span>
+      <h1 class="panel-title">Ship Pullout Solver</h1>
+
+      {# SEO: always-visible intro text, not hidden behind the theory overlay #}
+
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Operational</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-U0">
+          Initial Speed (U₀) <span class="input-val" id="val-U0">7.72 m/s</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-U0" min="2" max="20" step="0.05" value="7.7175">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-delta1">
+          Rudder Magnitude (δ₁) <span class="input-val" id="val-delta1">20°</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-delta1" min="5" max="35" step="1" value="20">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-T">
+          Rudder Apply Duration (T) <span class="input-val" id="val-T">600 s</span>
+        </label>
+        <input type="range" class="range-slider" id="sl-T" min="100" max="1200" step="25" value="600">
+        <div class="slider-hint">Total simulation runs for 2 × T = <span id="hint-2T">1200</span> s</div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Hull Mass &amp; Inertia</div>
+      <div class="coef-grid coef-grid--3">
+        <div class="coef-input"><label for="c-L">L (m)</label><input id="c-L" type="number" step="any" value="160.93"></div>
+        <div class="coef-input"><label for="c-m">m</label><input id="c-m" type="number" step="any" value="0.00798"></div>
+        <div class="coef-input"><label for="c-xG">x<sub>G</sub></label><input id="c-xG" type="number" step="any" value="-0.023"></div>
+        <div class="coef-input"><label for="c-Iz">I<sub>z</sub></label><input id="c-Iz" type="number" step="any" value="0.000392"></div>
+        <div class="coef-input"><label for="c-h">h (s)</label><input id="c-h" type="number" step="any" value="0.1"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-added">
+        Added Mass <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-added">
+        <div class="coef-input"><label for="c-Xudot">X<sub>u̇</sub></label><input id="c-Xudot" type="number" step="any" value="-0.00042"></div>
+        <div class="coef-input"><label for="c-Yvdot">Y<sub>v̇</sub></label><input id="c-Yvdot" type="number" step="any" value="-0.00748"></div>
+        <div class="coef-input"><label for="c-Nvdot">N<sub>v̇</sub></label><input id="c-Nvdot" type="number" step="any" value="0.00004646"></div>
+        <div class="coef-input"><label for="c-Yrdot">Y<sub>ṙ</sub></label><input id="c-Yrdot" type="number" step="any" value="-0.00009354"></div>
+        <div class="coef-input"><label for="c-Nrdot">N<sub>ṙ</sub></label><input id="c-Nrdot" type="number" step="any" value="-0.000438"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-linear">
+        Linear Damping <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-linear">
+        <div class="coef-input"><label for="c-Xu">X<sub>u</sub></label><input id="c-Xu" type="number" step="any" value="-0.00184"></div>
+        <div class="coef-input"><label for="c-Xuu">X<sub>uu</sub></label><input id="c-Xuu" type="number" step="any" value="-0.0011"></div>
+        <div class="coef-input"><label for="c-Xuuu">X<sub>uuu</sub></label><input id="c-Xuuu" type="number" step="any" value="-0.00215"></div>
+        <div class="coef-input"><label for="c-Yv">Y<sub>v</sub></label><input id="c-Yv" type="number" step="any" value="-0.0116"></div>
+        <div class="coef-input"><label for="c-Nv">N<sub>v</sub></label><input id="c-Nv" type="number" step="any" value="-0.00264"></div>
+        <div class="coef-input"><label for="c-Yr">Y<sub>r</sub></label><input id="c-Yr" type="number" step="any" value="-0.00499"></div>
+        <div class="coef-input"><label for="c-Nr">N<sub>r</sub></label><input id="c-Nr" type="number" step="any" value="-0.00166"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-cross">
+        Cross-Coupling <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-cross">
+        <div class="coef-input"><label for="c-Xvv">X<sub>vv</sub></label><input id="c-Xvv" type="number" step="any" value="-0.00899"></div>
+        <div class="coef-input"><label for="c-Xrr">X<sub>rr</sub></label><input id="c-Xrr" type="number" step="any" value="0.00018"></div>
+        <div class="coef-input"><label for="c-Xrv">X<sub>rv</sub></label><input id="c-Xrv" type="number" step="any" value="0.00798"></div>
+        <div class="coef-input"><label for="c-Yvu">Y<sub>vu</sub></label><input id="c-Yvu" type="number" step="any" value="-0.0116"></div>
+        <div class="coef-input"><label for="c-Nvu">N<sub>vu</sub></label><input id="c-Nvu" type="number" step="any" value="-0.00264"></div>
+        <div class="coef-input"><label for="c-Yru">Y<sub>ru</sub></label><input id="c-Yru" type="number" step="any" value="-0.00499"></div>
+        <div class="coef-input"><label for="c-Nru">N<sub>ru</sub></label><input id="c-Nru" type="number" step="any" value="-0.00166"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-nonlin">
+        Nonlinear Damping <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-nonlin">
+        <div class="coef-input"><label for="c-Yvvv">Y<sub>vvv</sub></label><input id="c-Yvvv" type="number" step="any" value="-0.08078"></div>
+        <div class="coef-input"><label for="c-Nvvv">N<sub>vvv</sub></label><input id="c-Nvvv" type="number" step="any" value="0.01636"></div>
+        <div class="coef-input"><label for="c-Yvvr">Y<sub>vvr</sub></label><input id="c-Yvvr" type="number" step="any" value="0.15356"></div>
+        <div class="coef-input"><label for="c-Nvvr">N<sub>vvr</sub></label><input id="c-Nvvr" type="number" step="any" value="-0.05483"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-rudder">
+        Rudder Coefficients <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-rudder">
+        <div class="coef-input"><label for="c-Xdd">X<sub>δδ</sub></label><input id="c-Xdd" type="number" step="any" value="-0.00095"></div>
+        <div class="coef-input"><label for="c-Xudd">X<sub>uδδ</sub></label><input id="c-Xudd" type="number" step="any" value="-0.0019"></div>
+        <div class="coef-input"><label for="c-Xvd">X<sub>vδ</sub></label><input id="c-Xvd" type="number" step="any" value="0.00093"></div>
+        <div class="coef-input"><label for="c-Xuvd">X<sub>uvδ</sub></label><input id="c-Xuvd" type="number" step="any" value="0.00093"></div>
+        <div class="coef-input"><label for="c-Yd">Y<sub>δ</sub></label><input id="c-Yd" type="number" step="any" value="0.00278"></div>
+        <div class="coef-input"><label for="c-Nd">N<sub>δ</sub></label><input id="c-Nd" type="number" step="any" value="-0.00139"></div>
+        <div class="coef-input"><label for="c-Yddd">Y<sub>δδδ</sub></label><input id="c-Yddd" type="number" step="any" value="-0.0009"></div>
+        <div class="coef-input"><label for="c-Nddd">N<sub>δδδ</sub></label><input id="c-Nddd" type="number" step="any" value="0.00045"></div>
+        <div class="coef-input"><label for="c-Yud">Y<sub>uδ</sub></label><input id="c-Yud" type="number" step="any" value="0.00556"></div>
+        <div class="coef-input"><label for="c-Nud">N<sub>uδ</sub></label><input id="c-Nud" type="number" step="any" value="-0.00278"></div>
+        <div class="coef-input"><label for="c-Yuud">Y<sub>uuδ</sub></label><input id="c-Yuud" type="number" step="any" value="0.00278"></div>
+        <div class="coef-input"><label for="c-Nuud">N<sub>uuδ</sub></label><input id="c-Nuud" type="number" step="any" value="-0.00139"></div>
+        <div class="coef-input"><label for="c-Yvdd">Y<sub>vδδ</sub></label><input id="c-Yvdd" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-Nvdd">N<sub>vδδ</sub></label><input id="c-Nvdd" type="number" step="any" value="0.00013"></div>
+        <div class="coef-input"><label for="c-Yvvd">Y<sub>vvδ</sub></label><input id="c-Yvvd" type="number" step="any" value="0.0119"></div>
+        <div class="coef-input"><label for="c-Nvvd">N<sub>vvδ</sub></label><input id="c-Nvvd" type="number" step="any" value="-0.00489"></div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-bias">
+        Bias Terms <span class="grp-chevron">▾</span>
+      </div>
+      <div class="coef-grid" id="grp-bias">
+        <div class="coef-input"><label for="c-Y0">Y₀</label><input id="c-Y0" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-N0">N₀</label><input id="c-N0" type="number" step="any" value="0.00003"></div>
+        <div class="coef-input"><label for="c-Y0u">Y<sub>0u</sub></label><input id="c-Y0u" type="number" step="any" value="-0.00008"></div>
+        <div class="coef-input"><label for="c-N0u">N<sub>0u</sub></label><input id="c-N0u" type="number" step="any" value="0.00006"></div>
+        <div class="coef-input"><label for="c-Y0uu">Y<sub>0uu</sub></label><input id="c-Y0uu" type="number" step="any" value="-0.00004"></div>
+        <div class="coef-input"><label for="c-N0uu">N<sub>0uu</sub></label><input id="c-N0uu" type="number" step="any" value="0.00003"></div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Manoeuvre Constants</div>
+      <div class="constants-row">
+        <div class="const-block">
+          <span class="const-label">Hard rudder</span>
+          <span class="const-val">−35°</span>
+        </div>
+        <div class="const-block">
+          <span class="const-label">Heading target</span>
+          <span class="const-val">+250°</span>
+        </div>
+      </div>
+      <div class="constants-note">Anderson Turn convention — fixed by standard procedure.</div>
+    </div>
+
+    <div class="input-section run-section">
+      <button class="btn-run" id="btn-run">▶ Run Simulation</button>
+    </div>
+
+    <div class="telemetry-wrapper">
+      <div class="input-label telemetry-title">Pullout Performance Indices</div>
+      <div class="telemetry-deck">
+        <div class="telemetry-item">
+          <span class="telemetry-label">Final r (+δ run):</span>
+          <span class="telemetry-val telemetry-val--pos" id="t-rfin-pos">— °/s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Final r (−δ run):</span>
+          <span class="telemetry-val telemetry-val--neg" id="t-rfin-neg">— °/s</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Residual Yaw Gap:</span>
+          <span class="telemetry-val" id="t-gap">— °/s</span>
+        </div>
+        <div class="telemetry-item stability-row">
+          <span class="telemetry-label highlight-text">Stability Verdict:</span>
+          <span class="telemetry-val stability-val" id="t-stable">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Samples per run:</span>
+          <span class="telemetry-val" id="t-samples">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Total Sim Time:</span>
+          <span class="telemetry-val" id="t-duration">— s</span>
+        </div>
+      </div>
+
+      <div class="api-status-bar">
+        <div class="api-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">READY</span>
+        </div>
+        <div class="hud-inline">U₀: <span id="hud-U0">—</span> · δ₁: <span id="hud-delta">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace-right">
+    <div class="split-viewport-container">
+      <section class="viewport-container visualizer-panel">
+        <div class="cad-toolbar">
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-play-pause">⏸ Pause</button>
+            <button class="cad-btn" id="btn-restart">↻ Restart</button>
+            <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+            <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+            <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+            <button class="cad-btn" id="btn-download-img">📸 Image</button>
+          </div>
+          <div class="aspect-ratio-hud">
+            Anim: <span id="hud-anim">0.00 s</span> · Phase: <span id="hud-phase">RUDDER APPLIED</span>
+          </div>
+        </div>
+        <div class="canvas-wrap">
+          <div id="canvas-3d-target"></div>
+          <div class="loading-overlay" id="loading-overlay"><div class="loading-spinner"></div></div>
+          <div class="trajectory-legend">
+            <div class="leg-row"><span class="leg-dot leg-dot--start"></span>Common start</div>
+            <div class="leg-row"><span class="leg-line leg-line--pos"></span><span>+δ rudder track</span></div>
+            <div class="leg-row"><span class="leg-line leg-line--neg"></span><span>−δ rudder track</span></div>
+            <div class="leg-row"><span class="leg-dot leg-dot--release"></span>Rudder released (t = T)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="viewport-container chart-panel is-hidden">
+        <div class="cad-toolbar chart-toolbar">
+          <div class="chart-title-hud">PULLOUT MANEUVER — DUAL TIME SERIES</div>
+          <div class="cad-actions">
+            <select id="plot-selector" class="cad-select">
+              <option value="signature">Pullout Signature (yaw rate)</option>
+              <option value="trajectory">Trajectories (x–y)</option>
+              <option value="heading">Heading (ψ) vs Time</option>
+              <option value="rudder">Rudder (δ) vs Time</option>
+            </select>
+            <button class="cad-btn" id="btn-export-curve-csv">📊 Export CSV</button>
+          </div>
+        </div>
+        <div id="plot-target"></div>
+      </section>
+
+      <section class="viewport-container table-panel is-hidden">
+        <div class="cad-toolbar table-toolbar">
+          <div class="chart-title-hud">FULL TIME-SERIES MATRIX (both runs)</div>
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-export-full-csv">📊 Export Full Report CSV</button>
+          </div>
+        </div>
+        <div id="table-target">
+          <div class="data-table-empty">Awaiting simulation data — click Run Simulation.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+<script>
+  window.NAVALAI_ASSETS = {
+    pulloutApi: "{% url 'pullout:pullout_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+<script defer src="{% static 'maneuver/js/app_pullout.js' %}"></script>
+{% endblock %}
