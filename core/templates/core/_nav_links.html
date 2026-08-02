@@ -1,0 +1,46 @@
+{% load static %}
+<a href="{% url 'core:home' %}" {% if active_page == 'home' %}class="active"{% endif %}>Home</a>
+
+<div class="dropdown">
+  <span class="dropdown-trigger {% if active_page == 'applications' %}active{% endif %}">
+    Applications <span class="arrow-indicator">▼</span>
+  </span>
+  <div class="dropdown-menu mega-dropdown">
+
+    <div class="dropdown-group">
+      <div class="group-title">Resistance</div>
+      <a href="{% url 'holtrop:holtrop_main' %}">Holtrop</a>
+      <a href="{% url 'savitsky:savitsky_main' %}">Savitsky</a>
+      <a href="{% url 'hollenbach:hollenbach_main' %}">Hollenbach</a>
+      <a href="{% url 'yacht:yacht_main' %}">Yacht Resistance Predictor</a>
+      <a href="{% url 'yacht_three:yacht_three_main' %}">Yacht Predictor (3-Param AI)</a>
+    </div>
+
+    <div class="dropdown-group">
+      <div class="group-title">Appendages</div>
+      <a href="{% url 'ROTOR:ROTOR' %}">ROTOR</a>
+    </div>
+
+    <div class="dropdown-group">
+      <div class="group-title">Propeller</div>
+      <a href="{% url 'b_series:b_series_main' %}">B-Series</a>
+      <a href="{% url 'au_series:au_main' %}">AU-Series</a>
+    </div>
+
+    <div class="dropdown-group">
+      <div class="group-title">Maneuver</div>
+      <a href="{% url 'turning:turning_main' %}">Turning Circle</a>
+      <a href="{% url 'zigzag:zigzag_main' %}">Zigzag Maneuver</a>
+      <a href="{% url 'stopping:stopping_main' %}">Stopping Maneuver</a>
+      <a href="{% url 'spiral:spiral_main' %}">Spiral Maneuver</a>
+      <a href="{% url 'pullout:pullout_main' %}">Pullout Maneuver</a>
+      <a href="{% url 'williamson_turn:williamson_main' %}">Williamson Turn</a>
+      <a href="{% url 'anderson:anderson_main' %}">Anderson Turn</a>
+    </div>
+
+  </div>
+</div>
+
+<a href="#" {% if active_page == 'projects' %}class="active"{% endif %}>Projects</a>
+<a href="{% url 'core:publications' %}" {% if active_page == 'publications' %}class="active"{% endif %}>Publications</a>
+<a href="{% url 'core:about' %}" {% if active_page == 'about' %}class="active"{% endif %}>About Us</a>

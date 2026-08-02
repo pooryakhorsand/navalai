@@ -1,0 +1,284 @@
+/* ==========================================================
+   About Us Page Specific Styles
+   ========================================================== */
+
+.about-hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+}
+
+.about-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  color: var(--white);
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.about-hero h1 em {
+  color: var(--amber);
+  font-style: normal;
+}
+
+.about-hero-subtitle {
+  color: var(--muted);
+  margin-top: 1rem;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Optional badge (اگر main.css مشابهش نداره) */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(200, 168, 75, 0.2);
+  border-radius: 999px;
+  background: rgba(200, 168, 75, 0.08);
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--amber);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(200, 168, 75, 0.12);
+}
+
+.badge-text {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Main container */
+.team-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+}
+
+.team-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.2);
+  letter-spacing: 0.5px;
+}
+
+/* Profiles Grid Layout */
+.founders-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.75rem;
+  margin-bottom: 3.5rem;
+}
+
+/* Card Styling */
+.profile-card {
+  background: var(--navy-mid);
+  border: 1px solid rgba(200, 168, 75, 0.15);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  border-radius: 4px;
+}
+
+.profile-card:hover {
+  background: var(--navy-light);
+  border-color: rgba(200, 168, 75, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Clean rectangular image frame */
+.profile-image-frame {
+  width: 110px;
+  height: 110px;
+  margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
+  background: var(--navy);
+  border: 2px solid var(--amber);
+  box-sizing: border-box;
+}
+
+.profile-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Profile typography */
+.profile-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  color: var(--white);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.profile-role {
+  font-size: 10px;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.profile-bio {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+/* Skill Badges */
+.profile-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.skill-tag {
+  font-size: 10px;
+  background: rgba(200, 168, 75, 0.08);
+  border: 1px solid rgba(200, 168, 75, 0.2);
+  color: var(--muted);
+  padding: 2px 8px;
+}
+
+.profile-card:hover .skill-tag {
+  color: var(--amber-light);
+  border-color: rgba(200, 168, 75, 0.4);
+}
+
+/* Social Icons */
+.profile-socials {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.social-icon-link {
+  color: var(--muted);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.social-icon-link:hover {
+  color: var(--amber);
+  transform: scale(1.15);
+}
+
+.social-icon-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ==========================================================
+   Nested Multi-Level Dropdown (About page needs it)
+   ========================================================== */
+
+/* Parent submenu wrapper */
+.dropdown-submenu {
+  position: relative;
+  width: 100%;
+}
+
+/* Trigger row */
+.submenu-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-submenu:hover .submenu-trigger {
+  background: rgba(200, 168, 75, 0.1);
+  color: var(--amber);
+}
+
+.sub-arrow {
+  font-size: 9px;
+  opacity: 0.6;
+  transition: transform 0.2s;
+}
+
+/* Flyout */
+.submenu-content {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 240px;
+  background: #0b1528;
+  border: 1px solid rgba(200, 168, 75, 0.2);
+  display: none;
+  z-index: 10000;
+  box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.4);
+  padding: 8px 0;
+  border-radius: 6px;
+}
+
+/* Desktop hover reveal */
+.dropdown-submenu:hover .submenu-content {
+  display: block;
+}
+
+/* Mobile/touch JS fallback */
+.submenu-content.show {
+  display: block;
+}
+
+/* Links inside submenu */
+.submenu-content a {
+  display: block;
+  padding: 0.65rem 1.25rem;
+  font-size: 13px;
+  color: #a0b2c6;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+
+.submenu-content a:hover {
+  background: rgba(200, 168, 75, 0.1);
+  color: var(--amber);
+  padding-left: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .founders-grid {
+    grid-template-columns: 1fr;
+  }
+  .team-container {
+    padding: 1rem 1.25rem 3.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .founders-grid {
+    gap: 1.25rem;
+  }
+}

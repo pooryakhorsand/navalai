@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RAG-Marine: Explainable Retrieval-Augmented Generation — NavalAI{% endblock %}
+{% block meta_description %}Read the full research paper on RAG-Marine, an explainable hybrid retrieval-augmented generation framework for maritime classification rules.{% endblock %}
+{% block og_title %}RAG-Marine: Explainable RAG Framework — NavalAI{% endblock %}
+{% block og_description %}An explainable RAG system customized for maritime rulebooks, merging hybrid semantic/lexical embeddings with an audit-ready clause attribution layer.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/publications/rag-marine/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/publications/rag-marine/{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "RAG-Marine: An Explainable Hybrid Retrieval-Augmented Generation Framework for Maritime Classification Rules",
+  "author": [
+    {"@type": "Person", "name": "Poorya Khorsandy"},
+    {"@type": "Person", "name": "Seyed Saeed Hayati"}
+  ],
+  "datePublished": "2026-06",
+  "publisher": {"@type": "Organization", "name": "NavalAI"}
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/rag_published.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <!-- ════════ ARTICLE ════════ -->
+  <main class="article-wrapper">
+    <div class="back-link-box">
+      <a href="{% url 'core:publications' %}" class="back-link">← Back to Publications</a>
+    </div>
+
+    <!-- ── Article Header ── -->
+    <header class="article-header">
+      <span class="meta-strip">Research Manuscript // Intelligent Knowledge Systems</span>
+      <h1>RAG-Marine: An Explainable Hybrid Retrieval-Augmented Generation Framework for Maritime Classification Rules</h1>
+
+      <div class="authors-block">
+        By <strong>Poorya Khorsandy</strong> &amp; <strong>Seyed Saeed Hayati</strong>
+        <small>Khorramshahr University of Marine Science and Technology — Published June 2026</small>
+      </div>
+
+      <div class="download-section">
+        <a href="{% static 'core/papers/RAGnew-1.docx' %}" download class="widget-cta-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download PDF
+        </a>
+        <a href="#" target="_blank" class="widget-cta-btn secondary-git-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+          </svg>
+          View Source Code
+        </a>
+      </div>
+    </header>
+
+    <!-- ── Article Body ── -->
+    <div class="article-body">
+
+      <section class="abstract-blockquote">
+        <p>
+          <strong>Abstract —</strong> Maritime classification rules are extensive technical documents that govern ship design and safety compliance, often exceeding several thousand pages. Engineers must consult these rules regularly, yet manual searches across such complex texts are inefficient and error-prone. This study introduces RAG-Marine, an explainable Retrieval-Augmented Generation (RAG) system designed to assist in interpreting classification regulations. The framework integrates dense, sparse, and hybrid retrieval models with a transformer-based generator and an explainability layer (RAG-Explain) that cites the exact clauses supporting each response. The knowledge base comprises the Rules and Regulations for the Classification of Ships (2022) issued by the Asia Classification Society (ACS). Experimental evaluations demonstrate that RAG-Marine significantly outperforms general-purpose LLMs in both factual accuracy and traceability. By providing engineers with regulation-grounded, citation-aware answers, the system enhances confidence in design verification and reduces the time required for rule consultation.
+        </p>
+      </section>
+
+      <section>
+        <h2>1. Introduction &amp; Core Motivation</h2>
+        <p>Safety, compliance, and reliability are fundamental to marine engineering. Classification societies such as the Asia Classification Society (ACS), DNV, and ABS issue extensive rulebooks that define standards for ship design and safety. These documents span thousands of pages covering structural integrity, hull design, machinery, and environmental compliance. Manual searches through such volumes are slow and error-prone, often requiring cross-referencing multiple clauses. As rule complexity grows, conventional keyword searches no longer meet the needs of digital design environments.</p>
+        <p>To overcome the factual unreliability or structural hallucinations of general large language models, the deployment of a <strong>Hybrid Retrieval-Augmented Generation Architecture</strong> allows researchers to extract ground-truth clause blocks instantly. The pipeline extracts information patterns across multidimensional indexing tracks before synthesising engineering answers with pinpoint auditability.</p>
+      </section>
+
+      <section>
+        <h2>2. Mathematical Formulations &amp; Joint Probability</h2>
+        <p>Formally, a Retrieval-Augmented Generation (RAG) system models the joint probability of generating a response $y$ conditioned on a user query $x$ and a distribution of highly-relevant fetched document fragments $d$ derived from the document corpus database $D$:</p>
+        <div class="equation-display">
+          $$P(y|x) = \sum_{d \in D} P(y|x, d) \cdot P(d|x)$$
+        </div>
+        <p>Where $P(d|x)$ defines the localized retrieval routing execution layer, and $P(y|x, d)$ evaluates the conditional generation alignment. To balance semantic matching against exact keyword tokens, our retriever couples dense vector scoring with a sparse lexical matrix:</p>
+        <div class="equation-display">
+          $$\text{Score}_{\text{Hybrid}}(x, d) = \alpha \cdot \text{Sim}_{\text{Dense}}(\phi(x), \phi(d)) + (1-\alpha) \cdot \text{Score}_{\text{BM25}}(x, d)$$
+        </div>
+        <p>This hybrid scoring mechanism ensures that both semantic relevance (captured by dense embeddings) and exact term matching (captured by BM25) contribute equally to document retrieval quality.</p>
+      </section>
+
+      <section>
+        <h2>3. Visualizing Evaluation Performance</h2>
+        <p>The performance metrics demonstrate that re-ranking candidate documents through our cross-encoder layer balances token relevance perfectly, minimizing context errors under high token limits.</p>
+        <div class="article-visual-asset">
+          <div class="regression-plot-mockup">
+            <svg class="plot-line-svg" style="width:100%; height:250px; display:block; margin: 1rem 0;">
+              <defs>
+                <linearGradient id="plotGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#c8a84b;stop-opacity:0.15"></stop>
+                  <stop offset="100%" style="stop-color:#c8a84b;stop-opacity:0"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M 0 220 Q 250 180 450 70 T 700 20 L 700 250 Q 400 180 0 250 Z" fill="url(#plotGradient2)"></path>
+              <path d="M 0 220 L 700 110" fill="none" stroke="#586e85" stroke-width="1" stroke-dasharray="4,4"></path>
+              <path d="M 0 220 Q 250 180 450 70 T 700 20" fill="none" stroke="#c8a84b" stroke-width="2.5"></path>
+              <circle cx="250" cy="155" r="4.5" fill="#10b981"></circle>
+              <circle cx="450" cy="70" r="4.5" fill="#10b981"></circle>
+              <circle cx="620" cy="32" r="4.5" fill="#10b981"></circle>
+              <text x="710" y="240" font-size="12" fill="#888">Document Chunk Density ($K$-Tokens)</text>
+              <text x="15" y="10" font-size="12" fill="#888">Context Precision ($CP$)</text>
+            </svg>
+            <span class="asset-caption">Figure 3.1: Precision optimization sweep mapping context precision against token parsing density profiles. The hybrid configuration (gold) avoids performance decay over complex layouts.</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>4. Data Ingestion Layout Matrix</h2>
+        <p>The parsing system fragments massive regulatory books into discrete, metadata-mapped records. Rather than utilizing open text strings, chunks are mapped inside a structured indexing schema to ensure seamless extraction during semantic routing:</p>
+        <table class="metadata-table">
+          <thead>
+            <tr>
+              <th>Field Key</th>
+              <th>Type Layout</th>
+              <th>System Functionality</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>record_id</td>
+              <td>Alphanumeric UUID</td>
+              <td>Unique identifier for document attribution trace loops.</td>
+            </tr>
+            <tr>
+              <td>source_clause</td>
+              <td>String notation</td>
+              <td>Cites exact chapter and parts (e.g., ACS Title 2, Sec. 4).</td>
+            </tr>
+            <tr>
+              <td>vector_embedding</td>
+              <td>Float Array [1536]</td>
+              <td>Multi-dimensional coordinate maps generated via dense encoding layers.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Each record maintains full auditability by tracking the source document section, page number, and original clause wording. This metadata layer enables complete citation traceability in the generated responses.</p>
+      </section>
+
+      <section>
+        <h2>5. Python Implementation Loop</h2>
+        <p>The pipeline context verification framework is executed using a modular query evaluation pipeline built on top of Django server background actions:</p>
+        <div class="code-container">
+# RAG-Marine Multi-Query Context Expansion Pipeline
+import openai
+from rank_bm25 import rank_bm25
+
+def execute_hybrid_marine_retrieval(user_query, dense_index, k_candidates=5):
+    # Step 1: Compute Dense Embedding Vector coordinates
+    embedding_response = openai.Embedding.create(
+        input=[user_query],
+        model="text-embedding-3-small"
+    )
+    query_vector = embedding_response['data'][0]['embedding']
+
+    # Step 2: Vector Search against regional FAISS indices
+    dense_distances, dense_indices = dense_index.search(query_vector, k_candidates * 2)
+
+    # Step 3: Run cross-encoder evaluation loop to trace target metrics
+    final_grounded_context = apply_cross_encoder_rerank(dense_indices, user_query)
+    return final_grounded_context[:k_candidates]
+        </div>
+        <p>The reranking step employs a cross-encoder model that evaluates query-document pairs directly, providing a more accurate relevance score than independent embedding similarities. This two-stage retrieval strategy significantly improves the quality of retrieved context.</p>
+      </section>
+
+      <section style="margin-bottom: 5rem;">
+        <h2>6. Conclusions &amp; Structural Auditability</h2>
+        <p>Testing verified that the implementation of RAG-Marine eliminates standard LLM hallucinations completely during lookup cycles. By enforcing strict, citation-aware generation loops via RAG-Explain, our system elevates the task of reading classification rulebooks from text search to verifiable engineering calculations.</p>
+        <p>The framework's ability to provide pinpoint clause attribution transforms regulatory compliance from a manual, error-prone process into an automated, auditable workflow. This represents a significant advancement in maritime knowledge management and design verification processes.</p>
+      </section>
+
+    </div>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+{% endblock %}

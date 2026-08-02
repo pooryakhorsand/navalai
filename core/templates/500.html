@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Error — NavalAI</title>
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    :root {
+      --navy: #0a1628;
+      --amber: #c8a84b;
+      --amber-light: #e8c96a;
+      --white: #f0f4f8;
+      --muted: #8899aa;
+      --text: #d0dde8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: var(--navy);
+      color: var(--text);
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin-bottom: 3rem;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+    .logo-icon span {
+      transform: rotate(-45deg);
+      color: var(--amber);
+      font-weight: 700;
+      font-family: Georgia, serif;
+    }
+    .logo-text {
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: var(--white);
+    }
+    .logo-text em { color: var(--amber); font-style: normal; }
+
+    .error-code {
+      font-family: Georgia, serif;
+      font-size: clamp(64px, 18vw, 120px);
+      font-weight: 700;
+      color: var(--amber);
+      line-height: 1;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+    h1 {
+      font-family: Georgia, serif;
+      font-size: clamp(20px, 5vw, 28px);
+      color: var(--white);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 2rem;
+    }
+    .btn-primary {
+      padding: 11px 22px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      background: var(--amber);
+      color: var(--navy);
+      transition: background 0.2s ease;
+    }
+    .btn-primary:hover { background: var(--amber-light); }
+
+    @media (max-width: 480px) {
+      .btn-primary { width: 100%; max-width: 280px; padding: 13px 22px; }
+      .logo { margin-bottom: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/" class="logo">
+    <div class="logo-icon"><span>N</span></div>
+    <span class="logo-text">Naval<em>AI</em></span>
+  </a>
+
+  <div class="error-code">500</div>
+  <h1>Something went wrong on our end</h1>
+  <p>Our engine hit unexpected turbulence. The issue has been logged — please try again in a moment.</p>
+
+  <a href="/" class="btn-primary">Return Home</a>
+
+</body>
+</html>

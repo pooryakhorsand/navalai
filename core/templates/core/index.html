@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}NavalAI — Naval Architecture & AI Engineering Platform{% endblock %}
+{% block meta_description %}NavalAI delivers 12+ AI and physics-powered naval engineering tools: Holtrop-Mennen and Hollenbach resistance prediction, B-Series and AU-Series propeller analysis, and IMO-standard ship maneuvering simulators.{% endblock %}
+{% block og_title %}NavalAI — Naval Architecture & AI Engineering Platform{% endblock %}
+{% block og_description %}12+ AI and physics-powered tools for ship resistance, propeller, appendage, and maneuvering analysis.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "NavalAI",
+  "url": "https://YOURDOMAIN.com/",
+  "description": "Naval architecture and AI engineering platform providing ship resistance, propeller, appendage, and maneuvering prediction tools."
+}
+</script>
+{% endblock %}
+
+
+{% block nav_controls %}
+<button class="nav-cta" onclick="document.getElementById('main-apps-grid').scrollIntoView({behavior: 'smooth'})">Launch App</button>
+{% endblock %}
+
+{% block content %}
+  <main class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span class="badge-text">Naval Architecture &amp; AI</span>
+      </div>
+      <h1>Engineering the <em>Future of Ships</em></h1>
+      <p>A professional platform combining naval architecture expertise with artificial intelligence — delivering precision tools for ship resistance, stability, maneuvering, and vessel performance analysis.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="document.getElementById('main-apps-grid').scrollIntoView({behavior: 'smooth'})">Explore Applications</button>
+        <button class="btn-secondary" onclick="window.location.href='{% url 'turning:turning_main' %}'">Launch Turning App</button>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="cad-viewport-container" id="cad-master-box">
+        <div class="demo-label">LIVE DEMO</div>
+        <div id="hero-cad-viewport" class="cad-layer active"></div>
+        <div id="hero-propeller-viewport" class="cad-layer"></div>
+        <div id="canvas-3d-target" class="cad-layer"></div>
+        <div id="hero-holtrop-viewport" class="cad-layer"></div>
+        <div id="hero-turning-viewport" class="cad-layer"></div>
+      </div>
+
+      <div class="viewport-switcher-bar">
+        <button class="switch-btn active" id="btn-show-yacht" onclick="userSelectedSwitch('yacht')">Yacht Hull</button>
+        <button class="switch-btn" id="btn-show-propeller" onclick="userSelectedSwitch('propeller')">B-Propeller</button>
+        <button class="switch-btn" id="btn-show-rotor" onclick="userSelectedSwitch('rotor')">Magnus Rotor</button>
+        <button class="switch-btn" id="btn-show-holtrop" onclick="userSelectedSwitch('holtrop')">Holtrop</button>
+        <button class="switch-btn" id="btn-show-turning" onclick="userSelectedSwitch('turning')">Turning Circle</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-num" id="metric-apps-count">12 Active</div>
+        <div class="stat-label">Engineering Modules</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="metric-predictions-type">AI + Physics</div>
+        <div class="stat-label">Powered Predictions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="metric-standards">IMO / ITTC</div>
+        <div class="stat-label">Standard Methods</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="metric-research">Open</div>
+        <div class="stat-label">Research Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-tag">Engineering Tools</div>
+      <div class="section-title">Naval Architecture Applications</div>
+    </div>
+
+    <div class="apps-grid" id="main-apps-grid">
+
+      <a href="{% url 'holtrop:holtrop_main' %}" class="app-card active-card-link">
+        <div class="card-image">
+          <img src="{% static 'core/img/Holtrop.png' %}" alt="Holtrop-Mennen ship resistance prediction 3D hull model" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M2 16 Q7 8 12 12 Q17 16 22 8 M2 12 L22 12"></path></svg>
+          </div>
+          <div class="app-title">Holtrop–Mennen</div>
+          <div class="app-desc">Interactive Holtrop–Mennen resistance prediction for displacement ships, providing calm-water resistance, power estimation, wake fraction, thrust deduction, and propulsion performance analysis.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'hollenbach:hollenbach_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/hollenbach.png' %}" alt="Hollenbach cargo ship resistance prediction tool preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M4 20 L4 4 L20 4 M4 16 L10 10 L14 14 L20 8"></path></svg>
+          </div>
+          <div class="app-title">Hollenbach</div>
+          <div class="app-desc">Hollenbach resistance prediction method for cargo ships, providing reliable calm-water resistance estimates based on statistical regression of full-scale and model test data.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'savitsky:savitsky_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/savitsky.png' %}" alt="Savitsky planing hull performance analysis preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M2 18 L8 14 L14 16 L22 6"></path></svg>
+          </div>
+          <div class="app-title">Savitsky</div>
+          <div class="app-desc">Interactive Savitsky planing hull analysis for predicting trim angle, resistance, lift, wetted surface, power requirements, and high-speed craft performance.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'yacht:yacht_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/Yacht .png' %}" alt="Delft series sailing yacht resistance predictor preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 C6.5 2 2 6.5 2 12 C2 17.5 6.5 22 12 22 C17.5 22 22 17.5 22 12 M12 2 L12 12 L22 12"></path></svg>
+          </div>
+          <div class="app-title">Yacht Resistance Predictor</div>
+          <div class="app-desc">Sailing yacht bare-hull resistance solver based on the Delft Yacht Hydrodynamics Dataset, separating frictional and residuary resistance across the full Froude range from hull dimensions, LCB, and prismatic coefficient.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'yacht_three:yacht_three_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/Yacht three paremeters.png' %}" alt="AI 3-parameter yacht resistance predictor preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 C6.5 2 2 6.5 2 12 C2 17.5 6.5 22 12 22 C17.5 22 22 17.5 22 12 M12 2 L12 12 L22 12"></path></svg>
+          </div>
+          <div class="app-title">Yacht Predictor (3-Param AI)</div>
+          <div class="app-desc">AI-augmented yacht resistance solver that infers displacement, prismatic coefficient, and LCB from just Length, Beam, and Draft, then predicts the full Rf / Rr / Rt resistance curve using ITTC friction scaling.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'b_series:b_series_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/B.png' %}" alt="Wageningen B-Series propeller analysis preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 C6.5 2 2 6.5 2 12 C2 17.5 6.5 22 12 22 C17.5 22 22 17.5 22 12 M12 2 L12 12 L22 12"></path></svg>
+          </div>
+          <div class="app-title">B-Series Propeller</div>
+          <div class="app-desc">Interactive Wageningen B-Series propeller analysis with KT, KQ, efficiency curves, open-water performance prediction, and preliminary propeller design tools.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'au_series:au_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/AU.png' %}" alt="AU-Series high-speed propeller performance analysis preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 C6.5 2 2 6.5 2 12 C2 17.5 6.5 22 12 22 C17.5 22 22 17.5 22 12 M12 2 L12 12 L22 12"></path></svg>
+          </div>
+          <div class="app-title">AU-Series Propeller</div>
+          <div class="app-desc">Interactive AU-Series propeller performance analysis for high-speed vessels, providing thrust and torque coefficients across operating conditions.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'ROTOR:ROTOR' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/rotor.png' %}" alt="Magnus Flettner rotor wind-assisted propulsion analysis preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 L12 22 M8 4 C8 4 12 8 12 12 C12 16 8 20 8 20 M16 4 C16 4 12 8 12 12 C12 16 16 20 16 20"></path></svg>
+          </div>
+          <div class="app-title">Magnus Rotor</div>
+          <div class="app-desc">Magnus rotor (Flettner rotor) analysis tool for wind-assisted ship propulsion, calculating lift, drag, and thrust contribution under varying wind and rotation conditions.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'turning:turning_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/turning.png' %}" alt="Ship turning circle maneuver simulator preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2v20M4 12h16M8 6l-4 6 4 6"></path></svg>
+          </div>
+          <div class="app-title">Turning Circle Simulator</div>
+          <div class="app-desc">6-DOF maneuvering simulation with real-time 3D trajectory visualization, heading animation, and IMO turning criteria evaluation.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'zigzag:zigzag_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/zigzag.png' %}" alt="Zigzag maneuver ship handling simulator preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M4 12 L8 8 L12 12 L16 8 L20 12"></path></svg>
+          </div>
+          <div class="app-title">Zigzag Simulator</div>
+          <div class="app-desc">Standard zigzag maneuver simulation for ship handling assessment and course stability evaluation according to IMO standards.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'stopping:stopping_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/stopping.png' %}" alt="Ship stopping maneuver distance and time simulator preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M8 8 H16 V16 H8 Z M12 2 L12 6 M12 18 L12 22"></path></svg>
+          </div>
+          <div class="app-title">Stopping Simulator</div>
+          <div class="app-desc">Full stopping maneuver analysis with distance and time calculations based on ship inertia, propulsion and environmental factors.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'spiral:spiral_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/spiral.png' %}" alt="Dieudonne spiral maneuver course stability test preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 C17 7 17 17 12 22 C7 17 7 7 12 2 Z"></path></svg>
+          </div>
+          <div class="app-title">Spiral Simulator</div>
+          <div class="app-desc">Dieudonné spiral test simulation for evaluating ship course stability and turning characteristics in open water.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'pullout:pullout_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/pullout.png' %}" alt="Ship pullout maneuver recovery simulator preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 8 L16 12 L12 16 M16 12 H8 M20 12 H4"></path></svg>
+          </div>
+          <div class="app-title">Pullout Simulator</div>
+          <div class="app-desc">Pullout maneuver simulation to assess ship's ability to recover from a turn and stabilize on a new course.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'williamson_turn:williamson_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/williamson.png' %}" alt="Williamson turn man overboard recovery maneuver preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 2 A10 10 0 0 1 22 12 A10 10 0 0 1 12 22 A10 10 0 0 1 2 12 Q 2 6 8 6 L 22 6"></path></svg>
+          </div>
+          <div class="app-title">Williamson Turn</div>
+          <div class="app-desc">Man overboard emergency recovery maneuver simulation, calculating execution time and track geometry to return to the initial wake point.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+      <a href="{% url 'anderson:anderson_main' %}" class="app-card">
+        <div class="card-image">
+          <img src="{% static 'core/img/anderson.png' %}" alt="Anderson turn single-turn ship recovery simulator preview" loading="lazy">
+        </div>
+        <div class="card-top">
+          <div class="app-icon">
+            <svg viewBox="0 0 24 24"><path stroke="var(--amber)" fill="none" stroke-width="1.5" d="M12 22 A 10 10 0 1 1 22 12 C 22 2 12 2 12 2"></path></svg>
+          </div>
+          <div class="app-title">Anderson Turn</div>
+          <div class="app-desc">Single-turn (scharnow) ship recovery simulation, optimized for rapid response situation and immediate vessel return tracking.</div>
+        </div>
+        <span class="app-tag status-active">Active Tool</span>
+      </a>
+
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'core/js/three.min.js' %}"></script>
+  <script src="{% static 'core/js/OrbitControls.js' %}"></script>
+  <script src="{% static 'core/js/cad-perf-guard.js' %}"></script>
+
+  <script>
+    (function injectSafeguards() {
+      const mockIds = [
+        'slider-length', 'slider-height', 'slider-velocity',
+        'val-length', 'val-height', 'val-velocity', 'val-aspect-ratio',
+        'out-tangential', 'out-lift', 'out-drag', 'out-flow-regime',
+        'regime-badge', 'regime-desc', 'regime-re-val', 'regime-bar-fill'
+      ];
+      mockIds.forEach(id => {
+        if (!document.getElementById(id)) {
+          const fakeEl = document.createElement('div');
+          fakeEl.id = id;
+          fakeEl.value = "3.5";
+          fakeEl.style.display = 'none';
+          document.body.appendChild(fakeEl);
+        }
+      });
+    })();
+  </script>
+
+  <script src="{% static 'core/js/yacht_cad.js' %}"></script>
+  <script src="{% static 'core/js/b_cad.js' %}"></script>
+  <script src="{% static 'core/js/cylinder_code.js' %}"></script>
+  <script src="{% static 'core/js/holtrop_cad.js' %}"></script>
+  <script src="{% static 'core/js/turning_cad.js' %}"></script>
+
+  <script>
+    let activeMode = 'yacht';
+    let slideshowTimer = null;
+
+    const holtropInitialState = {
+      wl: 165, beam: 28, df: 8.5, da: 9.0, lcb: -2.0, cb: 0.68,
+      transom: 1, bulbous: 1, keel: 1, single: 1, twin: 1,
+      behind_skeg: 0, behind_stern: 0
+    };
+
+    const demoTurningData = {
+      t_series: Array.from({length: 140}, (_, i) => i * 1.8),
+      x_series: Array.from({length: 140}, (_, i) => Math.sin(i * 0.085) * 210 + i * 2.1),
+      y_series: Array.from({length: 140}, (_, i) => Math.cos(i * 0.085) * 175 - i * 0.9),
+      psi_series: Array.from({length: 140}, (_, i) => (i * 2.65) % 360)
+    };
+
+    window.addEventListener('load', () => {
+      const targetBox = document.getElementById('cad-master-box');
+      const containerWidth = targetBox.clientWidth || 560;
+      const initialHeight = window.innerWidth < 640 ? 280 : 380;
+
+      if (typeof initCAD === 'function') {
+        initCAD('hero-cad-viewport');
+        if (typeof updateHullGeometry === 'function') updateHullGeometry(25.0, 6.0, 1.4, 0.52, -2.2);
+        if (window.hullRenderer) window.hullRenderer.setSize(containerWidth, initialHeight);
+      }
+
+      if (typeof initPropellerCAD === 'function') {
+        initPropellerCAD('hero-propeller-viewport');
+        if (typeof updatePropellerGeometry === 'function') updatePropellerGeometry(4, 0.80, 0.50, 1.40, 2000000);
+        if (window.propRenderer) window.propRenderer.setSize(containerWidth, initialHeight);
+      }
+
+      if (typeof init3DScene === 'function') {
+        init3DScene();
+        const cylR = window.cylRenderer;
+        const cylC = window.cylCamera;
+        if (cylR) { cylR.setSize(containerWidth, initialHeight); cylR.setPixelRatio(Math.min(window.devicePixelRatio, 2)); }
+        if (cylC) { cylC.aspect = containerWidth / initialHeight; cylC.updateProjectionMatrix(); cylC.position.set(0, 0, 5.0); }
+      }
+
+      if (window.HoltropCAD && typeof window.HoltropCAD.init3D === 'function') {
+        window.HoltropCAD.init3D('hero-holtrop-viewport');
+        if (typeof window.HoltropCAD.renderHullShape === 'function') window.HoltropCAD.renderHullShape(holtropInitialState);
+        if (window.HoltropCAD.renderer) window.HoltropCAD.renderer.setSize(containerWidth, initialHeight);
+      }
+
+      if (typeof initTurningCAD === 'function') {
+        initTurningCAD('hero-turning-viewport');
+        if (typeof updateTurningTrajectory === 'function') updateTurningTrajectory(demoTurningData);
+        if (window.turningRenderer) window.turningRenderer.setSize(containerWidth, initialHeight);
+      }
+
+      startSlideshow();
+    });
+
+    window.addEventListener('resize', () => {
+      const targetBox = document.getElementById('cad-master-box');
+      const newWidth = targetBox.clientWidth;
+      const newHeight = window.innerWidth < 640 ? 280 : 380;
+
+      if (window.hullCamera && window.hullRenderer) { window.hullCamera.aspect = newWidth / newHeight; window.hullCamera.updateProjectionMatrix(); window.hullRenderer.setSize(newWidth, newHeight); }
+      if (window.propCamera && window.propRenderer) { window.propCamera.aspect = newWidth / newHeight; window.propCamera.updateProjectionMatrix(); window.propRenderer.setSize(newWidth, newHeight); }
+      if (window.cylCamera && window.cylRenderer) { window.cylCamera.aspect = newWidth / newHeight; window.cylCamera.updateProjectionMatrix(); window.cylRenderer.setSize(newWidth, newHeight); }
+      if (window.HoltropCAD && window.HoltropCAD.camera && window.HoltropCAD.renderer) { window.HoltropCAD.camera.aspect = newWidth / newHeight; window.HoltropCAD.camera.updateProjectionMatrix(); window.HoltropCAD.renderer.setSize(newWidth, newHeight); }
+      if (window.turningCamera && window.turningRenderer) { window.turningCamera.aspect = newWidth / newHeight; window.turningCamera.updateProjectionMatrix(); window.turningRenderer.setSize(newWidth, newHeight); }
+    });
+
+    function displayLayer(targetMode) {
+      activeMode = targetMode;
+      const yachtLayer   = document.getElementById('hero-cad-viewport');
+      const propLayer    = document.getElementById('hero-propeller-viewport');
+      const rotorLayer   = document.getElementById('canvas-3d-target');
+      const holtropLayer = document.getElementById('hero-holtrop-viewport');
+      const turningLayer = document.getElementById('hero-turning-viewport');
+      const yachtBtn   = document.getElementById('btn-show-yacht');
+      const propBtn    = document.getElementById('btn-show-propeller');
+      const rotorBtn   = document.getElementById('btn-show-rotor');
+      const holtropBtn = document.getElementById('btn-show-holtrop');
+      const turningBtn = document.getElementById('btn-show-turning');
+
+      [yachtLayer, propLayer, rotorLayer, holtropLayer, turningLayer, yachtBtn, propBtn, rotorBtn, holtropBtn, turningBtn].forEach(el => { if (el) el.classList.remove('active'); });
+
+      if (targetMode === 'propeller')    { propLayer?.classList.add('active'); propBtn?.classList.add('active'); }
+      else if (targetMode === 'rotor')   { rotorLayer?.classList.add('active'); rotorBtn?.classList.add('active'); }
+      else if (targetMode === 'holtrop') { holtropLayer?.classList.add('active'); holtropBtn?.classList.add('active'); }
+      else if (targetMode === 'turning') { turningLayer?.classList.add('active'); turningBtn?.classList.add('active'); }
+      else                               { yachtLayer?.classList.add('active'); yachtBtn?.classList.add('active'); }
+    }
+
+    function startSlideshow() {
+      clearInterval(slideshowTimer);
+      slideshowTimer = setInterval(() => {
+        let nextMode = 'yacht';
+        if (activeMode === 'yacht') nextMode = 'propeller';
+        else if (activeMode === 'propeller') nextMode = 'rotor';
+        else if (activeMode === 'rotor') nextMode = 'holtrop';
+        else if (activeMode === 'holtrop') nextMode = 'turning';
+        displayLayer(nextMode);
+      }, 5200);
+    }
+
+    function userSelectedSwitch(targetMode) {
+      clearInterval(slideshowTimer);
+      displayLayer(targetMode);
+      startSlideshow();
+    }
+  </script>
+
+  <script src="{% static 'core/js/nav.js' %}"></script>
+  <script type="module" src="{% static 'core/js/home.js' %}"></script>
+{% endblock %}

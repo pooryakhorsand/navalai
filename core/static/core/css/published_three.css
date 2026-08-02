@@ -1,0 +1,261 @@
+/* ==========================================================================
+   ⚓ Dedicated Academic Article Layout Viewport — Principal Dimensions
+   ========================================================================== */
+
+/* ── Article Container ── */
+.article-wrapper {
+  max-width: 840px;
+  margin: 7rem auto 4rem;
+  padding: 0 2rem;
+}
+
+/* ── Back Link ── */
+.back-link-box {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  color: var(--amber);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Article Header ── */
+.article-header {
+  margin-bottom: 2.5rem;
+}
+
+.meta-strip {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.article-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  color: var(--white);
+  line-height: 1.25;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Authors Block ── */
+.authors-block {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.15);
+  margin-bottom: 2rem;
+}
+
+.authors-block strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.authors-block small {
+  font-size: 12px;
+  color: #71899f;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* ── Download Section ── */
+.download-section {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.widget-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--amber);
+  color: #051421;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.widget-cta-btn:hover {
+  opacity: 0.9;
+}
+
+.widget-cta-btn.secondary-git-btn {
+  background: transparent;
+  border: 1px solid var(--text);
+  color: var(--white);
+}
+
+.widget-cta-btn.secondary-git-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ── Article Body ── */
+.article-body h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  color: var(--white);
+  margin: 3.5rem 0 1.25rem;
+  font-weight: 600;
+}
+
+.article-body h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--amber);
+  margin: 2.25rem 0 1rem;
+  font-weight: 600;
+}
+
+.article-body p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.article-body strong {
+  color: var(--white);
+}
+
+/* ── Abstract Blockquote ── */
+.abstract-blockquote {
+  background: rgba(11, 37, 58, 0.5);
+  border-left: 3px solid var(--amber);
+  padding: 2rem;
+  margin: 2.5rem 0;
+  border-radius: 0 4px 4px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
+  border-right: 1px solid rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.abstract-blockquote p {
+  font-style: italic;
+  font-size: 14.5px;
+  color: #d1dfee;
+  line-height: 1.75;
+  margin-bottom: 0;
+  text-align: justify;
+}
+
+/* ── Equation Display ── */
+.equation-display {
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 1.15rem;
+  color: var(--white);
+  overflow-x: auto;
+}
+
+/* ── Code Container ── */
+.code-container {
+  background: #040d16;
+  padding: 1.25rem 1.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #e2e8f0;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1.75rem 0;
+}
+
+/* ── Article Visual Asset ── */
+.article-visual-asset {
+  background: #051421;
+  border: 1px solid rgba(200, 168, 75, 0.15);
+  border-radius: 4px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+}
+
+.regression-plot-mockup {
+  height: 240px;
+  border-left: 1.5px solid #586e85;
+  border-bottom: 1.5px solid #586e85;
+  position: relative;
+  margin: 2rem 3rem 2rem 4rem;
+}
+
+.plot-line-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.asset-caption {
+  display: block;
+  font-size: 12px;
+  color: #71899f;
+  text-align: center;
+  margin-top: 1rem;
+  line-height: 1.5;
+  padding: 0 1rem;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .article-wrapper {
+    margin-top: 6rem;
+    padding: 0 1.25rem;
+  }
+
+  .article-header h1 {
+    font-size: 28px;
+  }
+
+  .download-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .regression-plot-mockup {
+    margin: 2rem 1rem 2rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-header h1 {
+    font-size: 24px;
+  }
+
+  .article-body h2 {
+    font-size: 20px;
+  }
+
+  .download-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

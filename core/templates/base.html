@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {# ═══════ SEO: unique per-page title & description ═══════ #}
+  <title>{% block title %}NavalAI — Engineering the Future of Ships{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}A professional platform combining naval architecture expertise with AI — precision tools for ship resistance, stability, maneuvering, and vessel performance analysis.{% endblock %}">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{% block canonical_url %}https://YOURDOMAIN.com{{ request.path }}{% endblock %}">
+
+  {# ═══════ Open Graph ═══════ #}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NavalAI">
+  <meta property="og:title" content="{% block og_title %}NavalAI — Engineering the Future of Ships{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}A professional platform combining naval architecture expertise with AI — precision tools for ship resistance, stability, maneuvering, and vessel performance analysis.{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% static 'core/img/Holtrop.png' %}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}https://YOURDOMAIN.com{{ request.path }}{% endblock %}">
+
+  {# ═══════ Structured Data ═══════ #}
+  {% block schema %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "NavalAI",
+    "url": "https://YOURDOMAIN.com",
+    "logo": "https://YOURDOMAIN.com{% static 'core/img/Holtrop.png' %}",
+    "description": "Naval architecture and AI engineering platform providing ship resistance, propeller, appendage, and maneuvering prediction tools."
+  }
+  </script>
+  {% endblock %}
+
+  <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  {# پس‌زمینه تیره پشت منوی موبایل باز — با کلیک بسته میشه #}
+  <div class="nav-overlay" id="nav-overlay"></div>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="{% url 'core:home' %}" class="logo">
+        <div class="logo-icon"><span>N</span></div>
+        <span class="logo-text">Naval<em>AI</em></span>
+      </a>
+
+      <div class="nav-links" id="nav-links">
+        {# دکمه بستن، فقط روی موبایل دیده میشه #}
+        <button class="mobile-nav-close" id="mobile-nav-close" aria-label="بستن منو">&times;</button>
+
+        {% include "core/_nav_links.html" %}
+
+        {# CTA داخل پنل موبایل تکرار میشه چون nav-cta اصلی روی موبایل مخفیه #}
+        <button class="mobile-nav-cta" onclick="document.getElementById('main-apps-grid')?.scrollIntoView({behavior: 'smooth'}); closeMobileNav();">
+          Launch App
+        </button>
+      </div>
+
+      {% block nav_controls %}
+      <button class="nav-cta" onclick="document.getElementById('main-apps-grid').scrollIntoView({behavior: 'smooth'})">Launch App</button>
+      {% endblock %}
+
+      {# دکمه همبرگری، فقط روی موبایل دیده میشه #}
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="باز کردن منو" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <div class="divider"></div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="logo" style="margin-bottom:8px; justify-content:center;">
+          <div class="logo-icon" style="width:28px;height:28px;"><span style="font-size:11px;">N</span></div>
+          <span class="logo-text" style="font-size:16px;">Naval<em>AI</em></span>
+        </div>
+        <p class="footer-copy">Naval Architecture &amp; AI Engineering Platform © 2026</p>
+      </div>
+      <div class="footer-links">
+        <a href="{% url 'core:home' %}">Home</a>
+        <a href="{% url 'core:home' %}#main-apps-grid">Applications</a>
+        <a href="#">Projects</a>
+        <a href="{% url 'core:publications' %}">Publications</a>
+        <a href="{% url 'core:about' %}">About Us</a>
+      </div>
+    </div>
+  </footer>
+
+  {# اسکریپت اصلی منوی موبایل — همبرگر، overlay، و دراپ‌داون‌های تاچی #}
+  <script src="{% static 'core/js/mobile-nav.js' %}"></script>
+
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

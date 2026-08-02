@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Publications — NavalAI{% endblock %}
+{% block meta_description %}Explore NavalAI academic publications and research papers on ship resistance prediction, machine learning in naval architecture, and RAG-Marine classification frameworks.{% endblock %}
+{% block og_title %}Publications — NavalAI Research & Science{% endblock %}
+{% block og_description %}Academic papers and research articles on AI-driven naval architecture, hydrodynamic characterization, and maritime rule retrieval systems.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/publications/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/publications/{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Academic Publications",
+  "url": "https://YOURDOMAIN.com/publications/",
+  "description": "Research and science publications from NavalAI exploring naval architecture, data science, and advanced regression modeling."
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/publications.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- ════════ HEADER ════════ -->
+  <header class="pub-header">
+    <div class="header-container">
+      <span class="header-tag">Research &amp; Science</span>
+      <h1>Academic Publications</h1>
+      <p>Exploring the intersection of naval architecture, data science, and advanced regression modeling to optimize next-generation vessel hydrodynamics.</p>
+    </div>
+  </header>
+
+  <!-- ════════ PUBLICATIONS LIST ════════ -->
+  <main class="pub-main-container">
+    <div class="pub-list">
+
+      <!-- ─── Paper 1: Three-Param ─── -->
+      <article class="pub-row-card">
+        <div class="pub-card-meta">
+          <span class="meta-label type-conference">Featured Paper</span>
+          <span class="meta-label venue-name">International Parametric Yacht Analysis &amp; Naval Architecture Review</span>
+        </div>
+
+        <h2 class="pub-row-title">From Principal Dimensions to Full Hydrodynamic Characterization: A Machine Learning Methodology</h2>
+        <p class="pub-row-authors">Poorya Khorsandy, Seyed Saeed Hayati</p>
+
+        <p class="pub-row-excerpt">
+          A cascading data-driven framework capable of mapping a minimal baseline array of three principal parameters (Length, Beam, and Draft) directly into a complete generation loop of over 30 geometric profiles and advanced residuary resistance constraints.
+        </p>
+
+        <div class="inline-summary-panel" id="summary-three-param">
+          <div class="panel-grid">
+            <div class="panel-text">
+              <h3>Abstract Extract</h3>
+              <p>The preliminary design phase in naval architecture is characterized by a trade-off between rapid, low-fidelity empirical methods and time-consuming, high-fidelity physics-based simulations. This creates a significant gap for a tool that can facilitate comprehensive and rapid design space exploration. This study introduces a novel, data-driven framework designed to bridge this gap. By leveraging a foundational, public-domain dataset derived from systematic model testing, we develop a comprehensive, cascading predictive tool. The proposed framework is capable of generating a full suite of over 30 geometric and hydrodynamic parameters from a minimal set of three principal dimensions (Length, Beam, and Draft).</p>
+              <h3>Cascade Architecture &amp; Performance</h3>
+              <p>Geometric properties are traced using layered regressors including CatBoost, LightGBM, and Random Forest matrices, while residuary resistance targets (Cr) are handled via high-fidelity XGBoost estimators tracking along ITTC-1957 standard formulations.</p>
+            </div>
+            <div class="panel-visual">
+              <div class="mini-chart-container">
+                <span class="chart-header">Residuary Resistance Fit (R² Tracking)</span>
+                <div class="chart-row">
+                  <span class="lbl">XGBoost</span>
+                  <div class="track"><div class="fill green" style="width:99.87%"></div></div>
+                  <span class="val">0.998</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">CatBoost</span>
+                  <div class="track"><div class="fill" style="width:98.2%"></div></div>
+                  <span class="val">0.982</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">Empirical</span>
+                  <div class="track"><div class="fill red" style="width:74.5%"></div></div>
+                  <span class="val">0.745</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pub-row-actions">
+          <button class="action-toggle-btn" onclick="toggleSummary('summary-three-param', this)">Show Summary</button>
+          <a href="{% url 'core:publications_yacht_three' %}" class="action-link-btn">Read Full Text →</a>
+          <a href="{% static 'core/papers/three parameters.docx' %}" download class="action-link-btn download-accent">
+            <svg class="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download DOCX
+          </a>
+        </div>
+      </article>
+
+      <!-- ─── Paper 2: Yacht Resistance ─── -->
+      <article class="pub-row-card">
+        <div class="pub-card-meta">
+          <span class="meta-label type-conference">Conference Paper</span>
+          <span class="meta-label venue-name">Khorramshahr University of Marine Science</span>
+        </div>
+
+        <h2 class="pub-row-title">Ship Residuary Resistance Prediction with Machine Learning</h2>
+        <p class="pub-row-authors">Poorya Khorsandy, Seyed Saeed Hayati</p>
+
+        <p class="pub-row-excerpt">
+          An investigation into state-of-the-art machine learning algorithms applied to the Delft yacht hydrodynamics dataset to bypass resource-intensive CFD iterative loops and achieve instant regression maps.
+        </p>
+
+        <div class="inline-summary-panel" id="summary-yacht">
+          <div class="panel-grid">
+            <div class="panel-text">
+              <h3>Abstract Extract</h3>
+              <p>This paper explores machine learning techniques as a cost-effective, accurate, and relatively fast alternative to traditional methods for yacht residuary resistance calculation. Instead of solving CFD equations for every individual ship geometry, we propose applying machine learning algorithms to historical experiment arrays.</p>
+              <h3>Algorithmic Benchmarks</h3>
+              <p>Using 308 full-scale matrix test runs mapping 22 different hull parameters against specific Froude numbers, several models were tested. The ensemble architectures proved highly capable of capturing complex boundary-layer coefficients automatically.</p>
+            </div>
+            <div class="panel-visual">
+              <div class="mini-chart-container">
+                <span class="chart-header">Error Distribution Metric (RMSE)</span>
+                <div class="chart-row">
+                  <span class="lbl">XGBoost</span>
+                  <div class="track"><div class="fill green" style="width:5%"></div></div>
+                  <span class="val">0.54</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">CatBoost</span>
+                  <div class="track"><div class="fill" style="width:12%"></div></div>
+                  <span class="val">0.82</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">SVR Engine</span>
+                  <div class="track"><div class="fill red" style="width:100%"></div></div>
+                  <span class="val">10.62</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pub-row-actions">
+          <button class="action-toggle-btn" onclick="toggleSummary('summary-yacht', this)">Show Summary</button>
+          <a href="{% url 'core:publications_yacht' %}" class="action-link-btn">Read Full Paper →</a>
+          <!-- Fixed missing SVG wrapper from original code -->
+          <a href="{% static 'core/papers/Ship Residuary Resistance Prediction with Machine .pdf' %}" download class="action-link-btn download-accent">
+            <svg class="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download PDF
+          </a>
+        </div>
+      </article>
+
+      <!-- ─── Paper 3: RAG-Marine ─── -->
+      <article class="pub-row-card">
+        <div class="pub-card-meta">
+          <span class="meta-label type-research">Research Article</span>
+          <span class="meta-label venue-name">NavalAI Engineering Series</span>
+        </div>
+
+        <h2 class="pub-row-title">RAG-Marine: An Explainable Hybrid Retrieval-Augmented Generation Framework for Maritime Classification Rules</h2>
+        <p class="pub-row-authors">Poorya Khorsandy, Seyed Saeed Hayati</p>
+
+        <p class="pub-row-excerpt">
+          An explainable Retrieval-Augmented Generation (RAG) system customized for maritime rulebooks, merging hybrid semantic/lexical embeddings with an audit-ready clause attribution layer.
+        </p>
+
+        <div class="inline-summary-panel" id="summary-rag-marine">
+          <div class="panel-grid">
+            <div class="panel-text">
+              <h3>Abstract Extract</h3>
+              <p>Maritime classification rules are extensive technical documents that govern ship design and safety compliance, often exceeding several thousand pages. This study introduces RAG-Marine, an explainable Retrieval-Augmented Generation framework that integrates dense, sparse, and hybrid retrieval models with an explainability layer (RAG-Explain) to provide engineers with regulation-grounded, citation-aware answers.</p>
+              <h3>Performance Highlights</h3>
+              <p>By shifting to an accuracy-first architecture using a hybrid-rank retrieval system (re-ranking shortlist candidates via cross-encoders), the platform maintains perfect structural integrity over math formulas, text chunks, and classification tables.</p>
+            </div>
+            <div class="panel-visual">
+              <div class="mini-chart-container">
+                <span class="chart-header">Relative Context Precision (CP)</span>
+                <div class="chart-row">
+                  <span class="lbl">Hybrid-Rank</span>
+                  <div class="track"><div class="fill green" style="width:97%"></div></div>
+                  <span class="val">High</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">Dense Only</span>
+                  <div class="track"><div class="fill" style="width:76%"></div></div>
+                  <span class="val">Med</span>
+                </div>
+                <div class="chart-row">
+                  <span class="lbl">Base LLM</span>
+                  <div class="track"><div class="fill red" style="width:35%"></div></div>
+                  <span class="val">Low</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pub-row-actions">
+          <button class="action-toggle-btn" onclick="toggleSummary('summary-rag-marine', this)">Show Summary</button>
+          <a href="{% url 'core:publications_RAG' %}" class="action-link-btn">Read Full Text →</a>
+          <a href="{% static 'core/papers/RAGnew-1.docx' %}" download class="action-link-btn download-accent">
+            <svg class="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download DOCX
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    function toggleSummary(panelId, btn) {
+      var panel = document.getElementById(panelId);
+      if (!panel) return;
+      panel.classList.toggle('active');
+      btn.textContent = panel.classList.contains('active') ? 'Hide Summary ▲' : 'Show Summary ▼';
+    }
+  </script>
+{% endblock %}

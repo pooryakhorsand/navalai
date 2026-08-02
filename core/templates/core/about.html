@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us — NavalAI Team{% endblock %}
+{% block meta_description %}Meet the NavalAI team. We are an ocean engineering team leveraging AI, PID controllers, and advanced naval architecture expertise to build novel applications.{% endblock %}
+{% block og_title %}About Us — NavalAI Leadership & Faculty{% endblock %}
+{% block og_description %}Leadership and faculty behind NavalAI. Dr. Ahmad Hajivand and Poorya Khorsandy combining fluid dynamics and AI engineering.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/about/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/about/{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "NavalAI",
+  "url": "https://YOURDOMAIN.com/",
+  "description": "Naval architecture and AI engineering platform.",
+  "founder": [
+    {
+      "@type": "Person",
+      "name": "Dr. Ahmad Hajivand",
+      "jobTitle": "Co-Founder & Principal Scientist",
+      "affiliation": "Khorramshahr University of Marine Science and Technology"
+    },
+    {
+      "@type": "Person",
+      "name": "Poorya Khorsandy",
+      "jobTitle": "Co-Founder & Chief AI Architect",
+      "url": "https://github.com/pooryakhorsand"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- ════════ HERO ════════ -->
+  <header class="about-hero">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <p class="badge-text">Leadership &amp; Faculty</p>
+    </div>
+
+    <h1>
+      The Minds Behind Naval<em>AI</em>
+    </h1>
+
+    <p class="about-hero-subtitle">
+      We are an ocean engineering team leveraging AI, PID controllers, autonomous systems, and advanced naval
+      architecture expertise to build novel applications and products. Have an innovative idea or need a
+      custom project developed? Connect with us.
+    </p>
+  </header>
+
+  <!-- ════════ MAIN CONTENT ════════ -->
+  <main class="team-container">
+
+    <section>
+      <h2 class="team-section-title">Co-Founders</h2>
+
+      <div class="founders-grid">
+
+        <!-- Dr. Ahmad Hajivand -->
+        <article class="profile-card">
+          <div class="profile-image-frame">
+            <img src="{% static 'core/img/hajivand.jfif' %}" alt="Dr. Ahmad Hajivand">
+          </div>
+
+          <h3 class="profile-name">Dr. Ahmad Hajivand</h3>
+          <div class="profile-role">Co-Founder &amp; Principal Scientist</div>
+
+          <p class="profile-bio">
+            University Professor at KMSU and a Senior Fluid Dynamics specialist. Leading expert in advanced
+            computational fluid analysis, PID controllers, and autonomous systems engineering.
+          </p>
+
+          <div class="profile-skills">
+            <span class="skill-tag">CFD Senior</span>
+            <span class="skill-tag">PID Control</span>
+            <span class="skill-tag">Fluid Statics</span>
+            <span class="skill-tag">Ship Design</span>
+          </div>
+
+          <div class="profile-socials">
+            <a href="https://scholar.google.com/citations?user=vj1nrTcAAAAJ&hl=en"
+               class="social-icon-link" title="Google Scholar" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2L1 9l11 7 9-5.73V17h2V9L12 2z M12 17.5c-2.33 0-4.31-1.34-5.24-3.3l1.81-1.05C9.13 14.1 10.47 15 12 15c1.88 0 3.44-1.37 3.75-3.19l1.96 0.34C17.15 15.15 14.81 17.5 12 17.5z"></path>
+              </svg>
+            </a>
+
+            <a href="https://ir.linkedin.com/in/ahmad-hajivand-67b942155"
+               class="social-icon-link" title="LinkedIn" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+              </svg>
+            </a>
+
+            <a href="mailto:hajivand.kmsu@gmail.com" class="social-icon-link" title="Email">
+              <svg viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path>
+              </svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Poorya Khorsandy -->
+        <article class="profile-card">
+          <div class="profile-image-frame">
+            <img src="{% static 'core/img/khorsandy.png' %}" alt="Poorya Khorsandy">
+          </div>
+
+          <h3 class="profile-name">Poorya Khorsandy</h3>
+          <div class="profile-role">Co-Founder &amp; Chief AI Architect</div>
+
+          <p class="profile-bio">
+            Holds a Master's degree in Naval Architecture. Senior AI systems developer specialized in deep learning
+            regression architectures and complex fluid tracking models via StarCCM+.
+          </p>
+
+          <div class="profile-skills">
+            <span class="skill-tag">AI Engineering</span>
+            <span class="skill-tag">StarCCM+</span>
+            <span class="skill-tag">Programming</span>
+            <span class="skill-tag">Ship Design</span>
+          </div>
+
+          <div class="profile-socials">
+            <a href="https://scholar.google.com/citations?user=C-ivKYsAAAAJ&hl=en"
+               class="social-icon-link" title="Google Scholar" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2L1 9l11 7 9-5.73V17h2V9L12 2z M12 17.5c-2.33 0-4.31-1.34-5.24-3.3l1.81-1.05C9.13 14.1 10.47 15 12 15c1.88 0 3.44-1.37 3.75-3.19l1.96 0.34C17.15 15.15 14.81 17.5 12 17.5z"></path>
+              </svg>
+            </a>
+
+            <a href="https://github.com/pooryakhorsand" class="social-icon-link" title="GitHub" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"></path>
+              </svg>
+            </a>
+
+            <a href="https://linkedin.com/in/poorya-khorsandy-a79103249"
+               class="social-icon-link" title="LinkedIn" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+              </svg>
+            </a>
+
+            <a href="mailto:poorya.khorsandy.official@gmail.com" class="social-icon-link" title="Email">
+              <svg viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path>
+              </svg>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Dropdown logic for mobile/touch if needed within base.html context
+      const dropdown = document.querySelector(".dropdown");
+      const menu = document.querySelector(".dropdown-menu");
+      const trigger = document.querySelector(".dropdown-trigger");
+
+      if (trigger && menu) {
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isOpen = menu.classList.contains("show");
+          document.querySelectorAll(".submenu-content").forEach(sub => sub.classList.remove("show"));
+          menu.classList.toggle("show", !isOpen);
+          trigger.classList.toggle("active", !isOpen);
+        });
+      }
+
+      document.querySelectorAll(".submenu-trigger").forEach(subTrigger => {
+        subTrigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const subContent = subTrigger.nextElementSibling;
+          const isOpen = subContent.classList.contains("show");
+          document.querySelectorAll(".submenu-content").forEach(sub => {
+            if (sub !== subContent) sub.classList.remove("show");
+          });
+          subContent.classList.toggle("show", !isOpen);
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        if (dropdown && dropdown.contains(e.target)) return;
+        if (menu) menu.classList.remove("show");
+        if (trigger) trigger.classList.remove("active");
+        document.querySelectorAll(".submenu-content").forEach(sub => sub.classList.remove("show"));
+      });
+
+      if (dropdown) {
+        dropdown.addEventListener("mouseleave", () => {
+          if (menu) menu.classList.remove("show");
+          if (trigger) trigger.classList.remove("active");
+          document.querySelectorAll(".submenu-content").forEach(sub => sub.classList.remove("show"));
+        });
+      }
+    });
+  </script>
+{% endblock %}
+```
