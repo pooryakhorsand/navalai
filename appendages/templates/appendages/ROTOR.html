@@ -1,0 +1,485 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnus Rotor Simulator — NavalAI</title>
+  <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'appendages/css/ROTOR.css' %}">
+
+  <!-- Chart.js for Analytical Plots -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="{% url 'core:home' %}">
+        <div class="logo-icon"><span>N</span></div>
+        <span class="logo-text">Naval<em>AI</em></span>
+      </a>
+
+      <div class="nav-links">
+        <a href="{% url 'core:home' %}">Home</a>
+
+        <div class="dropdown">
+          <span class="dropdown-trigger">
+            Applications <span class="arrow-indicator">▼</span>
+          </span>
+          <div class="dropdown-menu">
+            <a href="{% url 'ROTOR:ROTOR' %}">Magnus Rotor Simulator</a>
+          </div>
+        </div>
+
+        <a href="#">Projects</a>
+        <a href="{% url 'core:publications' %}">Publications</a>
+        <a href="{% url 'core:about' %}">About Us</a>
+      </div>
+
+      <div class="nav-controls-cluster">
+        <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================================================== -->
+  <!--  THEORY & RESEARCH OVERLAY                            -->
+  <!-- ==================================================== -->
+  <div class="theory-overlay" id="theory-overlay">
+    <div class="theory-modal">
+      <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+      <div class="theory-grid">
+        <div class="theory-left">
+          <span class="theory-tag">Research Background</span>
+          <h2>Aerodynamic Modeling of Magnus Rotors</h2>
+          <p class="theory-meta">Published in the <em>Journal of Marine Science and Technology</em></p>
+
+          <p>This simulator models the boundary layer physics and fluid forces acting on a spinning cylinder inside a uniform freestream velocity field. It captures the fluid mechanics principles utilized by modern mechanical rotor sails to provide auxiliary wind propulsion for commercial cargo ships.</p>
+
+          <div class="equation-box">
+            <div class="eq-title">Kutta-Joukowski Lift Theorem</div>
+            <div class="eq-math">$$L = \rho \cdot V \cdot \Gamma \cdot b$$</div>
+            <p>Where <strong>ρ</strong> represents fluid density ($1.225 \text{ kg/m}^3$), <strong>V</strong> is the freestream flow velocity, <strong>Γ</strong> is the circulation strength ($\Gamma = 2\pi R \cdot V_{\text{tan}}$), and <strong>b</strong> is the cylinder span length.</p>
+          </div>
+
+          <h3>Abstract &amp; Boundary Dynamics</h3>
+          <p>By shifting from steady structural setups to highly turbulent flows ($Re \ge 500 \times 10^3$), this application maps boundary layer separation changes and vortex shedding profiles. These factors dictate the net aerodynamic efficiency drops experienced in rough maritime environments.</p>
+
+          <div class="equation-box">
+            <div class="eq-title">Reynolds Number</div>
+            <div class="eq-math">$$Re = \frac{V \cdot D}{\nu}$$</div>
+            <p>Where <strong>D</strong> is the cylinder diameter and <strong>ν</strong> is the kinematic viscosity of air ($1.511 \times 10^{-5} \text{ m}^2/\text{s}$).</p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Drag Coefficient for Spinning Cylinder</div>
+            <div class="eq-math">$$C_D = 1.2 + 0.4 \cdot \alpha^{1.4}$$</div>
+            <p>Where <strong>α</strong> is the non-dimensional spin ratio ($\alpha = V_\theta / V_\infty$).</p>
+          </div>
+        </div>
+
+        <div class="theory-right">
+          <span class="theory-tag">Interactive Tutorial</span>
+          <h2>How to Use the Simulator</h2>
+
+          <div class="tutorial-step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <h4>Configure Rotor Dimensions</h4>
+              <p>Adjust the Cylinder Length ($L$) and Diameter ($H$) inputs to alter the aspect ratio. The physical mesh dimensions instantly rescale inside the CAD canvas viewport.</p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <h4>Track Flow Regime Instabilities</h4>
+              <p>Drag the Airflow Velocity slider to scale the Reynolds Index. Watch the flow field transition from stable <strong>LAMINAR</strong> trajectories into fluctuating, chaotic cross-axis Z-wobble wake patterns.</p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <h4>Analyze Performance Output</h4>
+              <p>Evaluate real-time variations in lift, drag, and tangential speeds. Use the built-in CAD actions header toolbar to save analytical graphics snapshots or export data parameters to a physical CSV spreadsheet document.</p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              <h4>Switch Between Views</h4>
+              <p>Toggle between <strong>3D CAD MODEL</strong>, <strong>ANALYTICAL PLOTS</strong>, and <strong>DATA TABLE</strong> using the tab buttons above the workspace to explore different visualizations of your simulation results.</p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">5</div>
+            <div class="step-text">
+              <h4>Export Simulation Data</h4>
+              <p>All computed aerodynamic parameters can be exported as CSV files for further analysis in MATLAB, Python, or Excel. Screenshots of the 3D scene can be captured directly.</p>
+            </div>
+          </div>
+
+          <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!--  MAIN APP WORKSPACE                                   -->
+  <!-- ==================================================== -->
+  <main class="app-workspace">
+
+    <!-- =============== LEFT CONTROL PANEL =============== -->
+    <section class="control-panel">
+      <div class="panel-header">
+        <span class="panel-badge">Appendage · Magnus Rotor</span>
+        <h1 class="panel-title">Rotor Parameters</h1>
+      </div>
+
+      <!-- Rotor Geometry Inputs -->
+      <div class="input-section">
+        <div class="section-label">Rotor Geometry</div>
+        <div class="input-group">
+          <label class="input-label" for="slider-length">
+            Cylinder Length (L)
+            <span class="input-val" id="val-length">3.73 m</span>
+          </label>
+          <input type="range" id="slider-length" class="range-slider" min="3.5" max="4.0" step="0.01" value="3.73">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="slider-height">
+            Cylinder Diameter (H)
+            <span class="input-val" id="val-height">1.00 m</span>
+          </label>
+          <input type="range" id="slider-height" class="range-slider" min="0.9" max="1.1" step="0.01" value="1.00">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="slider-velocity">
+            Airflow Velocity (Re)
+            <span class="input-val" id="val-velocity">180×10³</span>
+          </label>
+          <input type="range" id="slider-velocity" class="range-slider" min="3.0" max="7.0" step="0.01" value="5.25">
+        </div>
+      </div>
+
+      <!-- Calculated Aerodynamics Output -->
+      <div class="input-section">
+        <div class="section-label">Calculated Aerodynamics</div>
+        <div class="telemetry-deck">
+          <div class="telemetry-item">
+            <span class="telemetry-label">Tangential Velocity:</span>
+            <span class="telemetry-val" id="out-tangential">42.1 m/s</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Free Stream Velocity:</span>
+            <span class="telemetry-val" id="out-freestream">2.72 m/s</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Lift Force (L):</span>
+            <span class="telemetry-val" id="out-lift">145.82 kN</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Drag Force (D):</span>
+            <span class="telemetry-val" id="out-drag">28.45 kN</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">L/D Efficiency:</span>
+            <span class="telemetry-val" id="out-efficiency">5.12</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">Flow Regime:</span>
+            <span class="telemetry-val" id="out-flow-regime">LAMINAR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow Regime Info Box -->
+      <div class="input-section">
+        <div class="section-label">Flow Regime Info</div>
+        <div class="regime-info-box" id="regime-info-box">
+          <div class="regime-badge" id="regime-badge">● LAMINAR</div>
+          <p class="regime-desc" id="regime-desc">Smooth, ordered flow — low mixing</p>
+          <div class="regime-re">Re = <span id="regime-re-val">180×10³</span></div>
+          <div class="regime-bar-wrap">
+            <div class="regime-bar-track">
+              <div class="regime-bar-fill" id="regime-bar-fill"></div>
+              <div class="regime-bar-labels">
+                <span>Laminar</span>
+                <span>Trans.</span>
+                <span>Turbulent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Physical Constants Info -->
+      <div class="input-section">
+        <div class="section-label">Physical Constants</div>
+        <div class="constants-list">
+          <div class="const-row"><span>Air Density (ρ):</span><span>1.225 kg/m³</span></div>
+          <div class="const-row"><span>Kinematic Viscosity (ν):</span><span>1.511×10⁻⁵ m²/s</span></div>
+          <div class="const-row"><span>Spin Ratio (α):</span><span>2.0</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== RIGHT WORKSPACE (3-TAB SYSTEM) =============== -->
+    <div class="workspace-right">
+
+      <!-- Unified Toolbar with Tab Switcher + Actions -->
+      <div class="view-tabs-container">
+        <div class="view-tabs-group">
+          <button class="view-tab-btn active" data-view="model">3D CAD MODEL</button>
+          <button class="view-tab-btn" data-view="plots">ANALYTICAL PLOTS</button>
+          <button class="view-tab-btn" data-view="table">DATA TABLE</button>
+        </div>
+
+        <!-- Contextual Toolbar for MODEL view -->
+        <div class="secondary-toolbar" id="toolbar-model">
+          <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+          <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+          <button class="cad-btn" id="btn-reset-cam">🔄 Reset View</button>
+          <button class="cad-btn" id="btn-download-img">📸 Image</button>
+        </div>
+
+        <!-- Contextual Toolbar for PLOTS view -->
+        <div class="secondary-toolbar" id="toolbar-plots" style="display:none;">
+          <button class="cad-btn" id="btn-refresh-plots">🔄 Refresh</button>
+          <button class="cad-btn" id="btn-download-plots">📸 Save Charts</button>
+        </div>
+
+        <!-- Contextual Toolbar for TABLE view -->
+        <div class="secondary-toolbar" id="toolbar-table" style="display:none;">
+          <button class="cad-btn" id="btn-export-csv">📊 Export CSV</button>
+          <button class="cad-btn" id="btn-copy-table">📋 Copy</button>
+          <button class="cad-btn" id="btn-print-table">🖨️ Print</button>
+        </div>
+
+        <div class="aspect-ratio-hud">
+          ASPECT RATIO (L/H): <span id="val-aspect-ratio">3.73</span>
+        </div>
+      </div>
+
+      <!-- =============== VIEW 1: 3D CAD MODEL =============== -->
+      <section class="viewport-container active" id="view-model">
+        <div class="canvas-wrap">
+          <div id="canvas-3d-target"></div>
+          <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+          </div>
+
+          <!-- 3D Info Overlay -->
+          <div class="canvas-info-overlay">
+            <div class="info-row"><span class="info-label">Status:</span> <span id="status-text" class="status-pill">READY</span></div>
+            <div class="info-row"><span class="info-label">Rotation:</span> <span id="rotation-info">CW · 0.72 rad/s</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============== VIEW 2: ANALYTICAL PLOTS =============== -->
+      <section class="viewport-container" id="view-plots">
+        <div class="plots-grid">
+
+          <div class="plot-card">
+            <div class="plot-header">
+              <h3>Lift &amp; Drag Forces</h3>
+              <span class="plot-tag">Bar</span>
+            </div>
+            <div class="plot-canvas-wrap">
+              <canvas id="chart-lift-drag"></canvas>
+            </div>
+            <div class="plot-footer">Current forces at Re = <span class="plot-val" id="plot-re-1">180×10³</span></div>
+          </div>
+
+          <div class="plot-card">
+            <div class="plot-header">
+              <h3>Pressure Distribution (Cp)</h3>
+              <span class="plot-tag">Line</span>
+            </div>
+            <div class="plot-canvas-wrap">
+              <canvas id="chart-pressure"></canvas>
+            </div>
+            <div class="plot-footer">Cp around cylinder circumference (θ = -180° → 180°)</div>
+          </div>
+
+          <div class="plot-card wide">
+            <div class="plot-header">
+              <h3>Aerodynamic Efficiency (L/D) vs Reynolds Number</h3>
+              <span class="plot-tag">Curve</span>
+            </div>
+            <div class="plot-canvas-wrap">
+              <canvas id="chart-efficiency"></canvas>
+            </div>
+            <div class="plot-footer">Red marker indicates current operating point</div>
+          </div>
+
+          <div class="plot-card">
+            <div class="plot-header">
+              <h3>Circulation Strength (Γ)</h3>
+              <span class="plot-tag">Bar</span>
+            </div>
+            <div class="plot-canvas-wrap">
+              <canvas id="chart-circulation"></canvas>
+            </div>
+            <div class="plot-footer">Γ = 2π · R · V_θ</div>
+          </div>
+
+          <div class="plot-card">
+            <div class="plot-header">
+              <h3>Wake Vortex Frequency</h3>
+              <span class="plot-tag">Line</span>
+            </div>
+            <div class="plot-canvas-wrap">
+              <canvas id="chart-wake"></canvas>
+            </div>
+            <div class="plot-footer">Strouhal frequency approximation</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =============== VIEW 3: DATA TABLE =============== -->
+      <section class="viewport-container" id="view-table">
+        <div class="data-table-wrapper">
+
+          <div class="table-header-info">
+            <h2>Complete Simulation Data Sheet</h2>
+            <p class="table-subtitle">All computed aerodynamic parameters, current session values</p>
+            <div class="table-meta">
+              <span>Generated: <span id="table-timestamp">--</span></span>
+              <span>Rotor ID: <strong>MAGNUS-01</strong></span>
+              <span>Regime: <strong id="table-regime">LAMINAR</strong></span>
+            </div>
+          </div>
+
+          <!-- Geometry Section -->
+          <h3 class="table-section-header">📐 Geometry Parameters</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Symbol</th>
+                <th>Value</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody id="table-body-geometry"></tbody>
+          </table>
+
+          <!-- Flow Section -->
+          <h3 class="table-section-header">💨 Flow Conditions</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Symbol</th>
+                <th>Value</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody id="table-body-flow"></tbody>
+          </table>
+
+          <!-- Aerodynamic Results Section -->
+          <h3 class="table-section-header">⚡ Aerodynamic Results</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Symbol</th>
+                <th>Value</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody id="table-body-results"></tbody>
+          </table>
+
+          <!-- Summary Cards -->
+          <div class="summary-cards">
+            <div class="summary-card teal">
+              <div class="summary-label">Total Lift</div>
+              <div class="summary-value" id="summary-lift">145.82</div>
+              <div class="summary-unit">kN</div>
+            </div>
+            <div class="summary-card red">
+              <div class="summary-label">Total Drag</div>
+              <div class="summary-value" id="summary-drag">28.45</div>
+              <div class="summary-unit">kN</div>
+            </div>
+            <div class="summary-card gold">
+              <div class="summary-label">L/D Ratio</div>
+              <div class="summary-value" id="summary-ld">5.12</div>
+              <div class="summary-unit">-</div>
+            </div>
+            <div class="summary-card purple">
+              <div class="summary-label">Reynolds Nº</div>
+              <div class="summary-value" id="summary-re">180K</div>
+              <div class="summary-unit">-</div>
+            </div>
+          </div>
+
+          <div class="table-footer-note">
+            <p>ℹ️ All values recomputed live when parameters change on the left panel. Data is derived using the Kutta-Joukowski lift theorem coupled with a spin-augmented drag coefficient model (α = 2.0).</p>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="divider"></div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="logo" style="margin-bottom:8px;">
+          <div class="logo-icon" style="width:28px;height:28px;"><span style="font-size:11px;">N</span></div>
+          <span class="logo-text" style="font-size:16px;">Naval<em>AI</em></span>
+        </div>
+        <p class="footer-copy">Naval Architecture &amp; AI Engineering Platform</p>
+      </div>
+      <div class="footer-links">
+        <a href="{% url 'core:home' %}">Home</a>
+        <a href="#">Applications</a>
+        <a href="#">Projects</a>
+        <a href="{% url 'core:publications' %}">Publications</a>
+        <a href="{% url 'core:about' %}">About Us</a>
+      </div>
+    </div>
+  </footer>
+
+  <script defer src="{% static 'core/js/three.min.js' %}"></script>
+  <script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+  <script defer src="{% static 'core/js/nav.js' %}"></script>
+  <script>
+    window.NAVALAI_ASSETS = {
+      rotorApi: "{% url 'ROTOR:ROTOR' %}",
+      katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+      katexJs: "{% static 'core/js/katex.min.js' %}",
+      katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+    };
+  </script>
+  <script defer src="{% static 'appendages/js/ROTOR.js' %}"></script>
+
+</body>
+</html>
