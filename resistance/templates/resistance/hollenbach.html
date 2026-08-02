@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Holtrop &amp; Mennen Resistance Solver — NavalAI{% endblock %}
+{% block meta_description %}Free interactive Holtrop and Mennen ship resistance solver. Estimate calm-water resistance components including frictional, wave-making, appendage, bulbous bow and transom resistance with 3D hull visualization, plots and CSV export.{% endblock %}
+{% block og_title %}Holtrop &amp; Mennen Resistance Solver — NavalAI{% endblock %}
+{% block og_description %}Interactive Holtrop-Mennen resistance solver with component breakdown, resistance vs Froude curves, 3D hull visualization and data export.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/holtrop/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/holtrop/{% endblock %}
+{% block og_image %}{% static 'core/img/holtrop.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Holtrop and Mennen Resistance Solver",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive Holtrop and Mennen calm-water ship resistance solver computing frictional, wave-making, appendage, bulbous bow, transom and total resistance.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resistance/css/app_holtrop.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Analytical Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="theory-overlay" id="theory-overlay">
+  <div class="theory-modal">
+    <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+    <div class="theory-grid">
+      <div class="theory-left">
+        <span class="theory-tag">Hydrodynamic Analysis Method</span>
+        <h2>Holtrop &amp; Mennen Resistance Prediction</h2>
+        <p class="theory-meta">Statistical regression method — J. Holtrop &amp; G.G.J. Mennen</p>
+
+        <p>
+          The Holtrop–Mennen method is a widely adopted statistical regression technique for
+          estimating total calm-water resistance of conventional displacement ship hulls.
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">Total Ship Resistance</div>
+          <div class="eq-math">
+            $$R_T = R_F(1+k_1) + R_{APP} + R_W + R_B + R_{TR} + R_A$$
+          </div>
+          <p>Each term represents a distinct physical contribution to bare-hull and appendage drag in calm water.</p>
+        </div>
+
+        <h3>Frictional Resistance</h3>
+        <p>
+          Frictional resistance is based on the ITTC-1957 friction line applied to wetted surface area.
+          The form factor $(1+k_1)$ captures viscous pressure drag.
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">ITTC-1957 Correlation Line</div>
+          <div class="eq-math">
+            $$R_F = \frac{1}{2}\rho V^2 S C_F,\qquad C_F = \frac{0.075}{(\log_{10}(Re)-2)^2}$$
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-right">
+        <span class="theory-tag">Component Breakdown</span>
+        <h2>Physical Decomposition</h2>
+        <p class="theory-meta">Six independently computed drag contributions</p>
+
+        <div class="component-cards">
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--teal">Viscous</span>
+              <strong>R<sub>f</sub>(1 + k<sub>1</sub>)</strong>
+            </div>
+            <p>Frictional drag amplified by hull form factor. Dominant at low Froude numbers.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--amber">Wave-Making</span>
+              <strong>R<sub>w</sub></strong>
+            </div>
+            <p>Grows steeply with speed and is a principal component for slender, faster ships.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--purple">Appendages</span>
+              <strong>R<sub>app</sub></strong>
+            </div>
+            <p>Includes rudders, skegs, fins, shafts and bossings using area and form-factor corrections.</p>
+          </div>
+        </div>
+
+        <span class="theory-tag" style="margin-top:2rem; display:block;">Interactive Tutorial</span>
+        <h2>Simulation Guide</h2>
+        <p class="theory-meta">Operational Control Workflow</p>
+
+        <div class="tutorial-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>Hull Geometry</h4>
+            <p>Set waterline length, beam, drafts, LCB and form coefficients.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>Configuration &amp; Appendages</h4>
+            <p>Toggle bulb, transom, afterbody form and appendages.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>Analyse Results</h4>
+            <p>Switch between 3D, plots and data table views and export the resistance matrix.</p>
+          </div>
+        </div>
+
+        <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="app-workspace">
+  <section class="control-panel">
+    <div class="panel-header">
+      <span class="panel-badge">Holtrop &amp; Mennen · Statistical Regression</span>
+      <h1 class="panel-title">Ship Resistance Solver</h1>
+
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Principal Dimensions</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-wl">Waterline Length (L) <span class="input-val" id="val-wl">150.0 m</span></label>
+        <input type="range" class="range-slider" id="sl-wl" min="10" max="300" step="1" value="150">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-beam">Beam (B) <span class="input-val" id="val-beam">25.0 m</span></label>
+        <input type="range" class="range-slider" id="sl-beam" min="4" max="60" step="0.5" value="25">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-df">Draft Forward (Tf) <span class="input-val" id="val-df">8.5 m</span></label>
+        <input type="range" class="range-slider" id="sl-df" min="1" max="25" step="0.1" value="8.5">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-da">Draft Aft (Ta) <span class="input-val" id="val-da">9.0 m</span></label>
+        <input type="range" class="range-slider" id="sl-da" min="1" max="25" step="0.1" value="9.0">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-lcb">LCB (% L) <span class="input-val" id="val-lcb">-2.5 %</span></label>
+        <input type="range" class="range-slider" id="sl-lcb" min="-5" max="5" step="0.1" value="-2.5">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Form Coefficients</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-cb">Block Coefficient (Cb) <span class="input-val" id="val-cb">0.650</span></label>
+        <input type="range" class="range-slider" id="sl-cb" min="0.40" max="0.90" step="0.005" value="0.65">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-cm">Midship Coeff. (Cm) <span class="input-val" id="val-cm">0.960</span></label>
+        <input type="range" class="range-slider" id="sl-cm" min="0.80" max="1.00" step="0.005" value="0.96">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-cwl">Waterplane Coeff. (Cwl) <span class="input-val" id="val-cwl">0.820</span></label>
+        <input type="range" class="range-slider" id="sl-cwl" min="0.60" max="0.98" step="0.005" value="0.82">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Hull Configuration</div>
+
+      <div class="config-row">
+        <span class="config-label">Bulbous Bow</span>
+        <div class="btn-group">
+          <button class="btn-toggle" id="btn-bulb-yes" data-toggle-group="bulbous" data-toggle-value="1">Yes</button>
+          <button class="btn-toggle active" id="btn-bulb-no" data-toggle-group="bulbous" data-toggle-value="0">No</button>
+        </div>
+      </div>
+
+      <div class="config-row">
+        <span class="config-label">Transom Stern</span>
+        <div class="btn-group">
+          <button class="btn-toggle" id="btn-trans-yes" data-toggle-group="transom" data-toggle-value="1">Yes</button>
+          <button class="btn-toggle active" id="btn-trans-no" data-toggle-group="transom" data-toggle-value="0">No</button>
+        </div>
+      </div>
+
+      <div class="config-row config-row--col">
+        <span class="config-label">Afterbody Form</span>
+        <div class="aft-grid">
+          <button class="btn-aft active" id="aft-0" data-aft="0">Pram w/ Gondola</button>
+          <button class="btn-aft" id="aft-1" data-aft="1">V-Shaped</button>
+          <button class="btn-aft" id="aft-2" data-aft="2">Normal Section</button>
+          <button class="btn-aft" id="aft-3" data-aft="3">U-Shape / Hogner</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section input-section--collapsible">
+      <div class="section-label section-label--clickable" data-toggle="grp-appendages">
+        Appendages <span class="grp-chevron">▾</span>
+      </div>
+
+      <div class="appendages-grid" id="grp-appendages">
+        <div class="appendage-row" id="app-row-skeg" data-app-key="behind_skeg" data-app-area="behind_skeg_area" data-app-factor="1.5">
+          <input type="checkbox" class="app-check"><span class="app-name">Rudder behind Skeg</span><span class="app-val" id="app-val-skeg">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-stern" data-app-key="behind_stern" data-app-area="behind_stern_area" data-app-factor="1.3">
+          <input type="checkbox" class="app-check"><span class="app-name">Rudder behind Stern</span><span class="app-val" id="app-val-stern">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-twin" data-app-key="twin" data-app-area="twin_area" data-app-factor="2.8">
+          <input type="checkbox" class="app-check"><span class="app-name">Twin-Screw Balance Rudder</span><span class="app-val" id="app-val-twin">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-skegfin" data-app-key="skeg" data-app-area="skeg_area" data-app-factor="1.5">
+          <input type="checkbox" class="app-check"><span class="app-name">Skeg</span><span class="app-val" id="app-val-skegfin">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-keel" data-app-key="keel" data-app-area="keel_area" data-app-factor="1.4">
+          <input type="checkbox" class="app-check"><span class="app-name">Bilge Keel</span><span class="app-val" id="app-val-keel">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-shaft" data-app-key="shaft" data-app-area="shaft_area" data-app-factor="2.0">
+          <input type="checkbox" class="app-check"><span class="app-name">Shafts</span><span class="app-val" id="app-val-shaft">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-strut" data-app-key="strut" data-app-area="strut_area" data-app-factor="3.0">
+          <input type="checkbox" class="app-check"><span class="app-name">Strut Bossings</span><span class="app-val" id="app-val-strut">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-bracket" data-app-key="bracket" data-app-area="bracket_area" data-app-factor="3.0">
+          <input type="checkbox" class="app-check"><span class="app-name">Shaft Brackets</span><span class="app-val" id="app-val-bracket">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-fin" data-app-key="fin" data-app-area="fin_area" data-app-factor="2.8">
+          <input type="checkbox" class="app-check"><span class="app-name">Stabilizer Fins</span><span class="app-val" id="app-val-fin">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-dome" data-app-key="dome" data-app-area="dome_area" data-app-factor="2.7">
+          <input type="checkbox" class="app-check"><span class="app-name">Dome</span><span class="app-val" id="app-val-dome">—</span>
+        </div>
+        <div class="appendage-row" id="app-row-hull" data-app-key="hull" data-app-area="hull_area" data-app-factor="2.0">
+          <input type="checkbox" class="app-check"><span class="app-name">Hull Bossings</span><span class="app-val" id="app-val-hull">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <button class="theory-start-btn" id="btn-run" style="width:100%;">▶ Run Solver</button>
+    </div>
+
+    <div class="telemetry-wrapper">
+      <div class="input-label telemetry-title">Resistance @ Max Froude</div>
+
+      <div class="telemetry-deck">
+        <div class="telemetry-item"><span class="telemetry-label">Frictional (Rf):</span><span class="telemetry-val" id="t-rf">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Wave (Rw):</span><span class="telemetry-val" id="t-rw">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Appendage (Rapp):</span><span class="telemetry-val" id="t-rapp">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Bulbous (Rb):</span><span class="telemetry-val" id="t-rb">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Transom (Rtr):</span><span class="telemetry-val" id="t-rtr">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Max Froude (Fn):</span><span class="telemetry-val" id="t-fn">—</span></div>
+        <div class="telemetry-item total-row"><span class="telemetry-label highlight-text">Total Resistance (Rt):</span><span class="telemetry-val total-val" id="t-rt">— kN</span></div>
+      </div>
+
+      <div class="api-status-bar">
+        <div class="api-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">READY</span>
+        </div>
+        <div class="hud-inline">L/B: <span id="hud-lb">—</span> · Cb: <span id="hud-cb">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace-right">
+    <div class="split-viewport-container">
+      <section class="viewport-container visualizer-panel">
+        <div class="cad-toolbar">
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+            <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+            <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+            <button class="cad-btn" id="btn-wireframe">🌐 Toggle Mesh</button>
+            <button class="cad-btn" id="btn-download-img">📸 Download Image</button>
+            <button class="cad-btn" id="btn-export-csv">📊 Export CSV</button>
+          </div>
+          <div class="aspect-ratio-hud">L/B: <span id="val-aspect">6.00</span> | FROUDE: <span id="val-froude">0.000</span></div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div id="canvas-3d-target"></div>
+          <div class="loading-overlay" id="loading-overlay"><div class="loading-spinner"></div></div>
+        </div>
+      </section>
+
+      <section class="viewport-container chart-panel is-hidden">
+        <div class="cad-toolbar chart-toolbar">
+          <div class="chart-title-hud">RESISTANCE vs FROUDE CHARACTERISTICS</div>
+          <div class="cad-actions">
+            <label for="curve-filter"></label>
+            <select id="curve-filter" class="cad-select">
+              <option value="all">All Components</option>
+              <option value="total">Total (Rt)</option>
+              <option value="friction">Frictional (Rf)</option>
+              <option value="wave">Wave (Rw)</option>
+              <option value="appendage">Appendage (Rapp)</option>
+              <option value="bulbous">Bulbous (Rb)</option>
+              <option value="transom">Transom (Rtr)</option>
+            </select>
+            <button class="cad-btn" id="btn-export-curve-csv">📊 Export CSV</button>
+          </div>
+        </div>
+        <div id="plot-target"></div>
+      </section>
+
+      <section class="viewport-container table-panel is-hidden">
+        <div class="cad-toolbar table-toolbar">
+          <div class="chart-title-hud">FULL RESISTANCE MATRIX</div>
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-export-full-csv">📊 Export Full Report CSV</button>
+          </div>
+        </div>
+        <div id="table-target">
+          <div class="data-table-empty">Awaiting solver data — click Run Simulation.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+
+<script>
+  window.NAVALAI_ASSETS = {
+    holtropApi: "{% url 'holtrop:holtrop_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+
+<script defer src="{% static 'resistance/js/app_holtrop.js' %}"></script>
+{% endblock %}

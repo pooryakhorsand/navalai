@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Savitsky Planing Hull Solver — NavalAI{% endblock %}
+{% block meta_description %}Free interactive Savitsky planing hull solver for high-speed craft. Compute trim angle, wetted geometry, hydrodynamic lift, thrust, effective power, horsepower and seaway behaviour with 3D visualization.{% endblock %}
+{% block og_title %}Savitsky Planing Hull Solver — NavalAI{% endblock %}
+{% block og_description %}Interactive Savitsky planing hull solver with trim equilibrium, wetted geometry, thrust, power, force breakdown, 3D hull visualization and data export.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/savitsky/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/savitsky/{% endblock %}
+{% block og_image %}{% static 'core/img/savitsky.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Savitsky Planing Hull Solver",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive Savitsky planing hull solver computing trim equilibrium, wetted geometry, lift, thrust and power for high-speed craft.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resistance/css/app_savitsky.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Result Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="theory-overlay" id="theory-overlay">
+  <div class="theory-modal">
+    <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+    <div class="theory-grid">
+      <div class="theory-left">
+        <span class="theory-tag">Planing Hydrodynamics</span>
+        <h2>Savitsky Method for Planing Hulls</h2>
+        <p class="theory-meta">Empirical regression method — D. Savitsky (1964 &amp; 1976)</p>
+
+        <p>
+          The Savitsky method is the industry-standard empirical approach for predicting
+          hydrodynamic performance of prismatic planing hulls at high speed. It establishes
+          equilibrium between hydrodynamic lift, hydrostatic buoyancy, hull weight and thrust
+          to solve running trim angle and wetted geometry.
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">Lift Equilibrium</div>
+          <div class="eq-math">$$W = N + B$$</div>
+          <p>
+            <strong>N</strong> is hydrodynamic normal force and <strong>B</strong> is buoyant force.
+            The method iterates trim angle $\tau$ until vertical and moment equilibrium are achieved.
+          </p>
+        </div>
+
+        <h3>Hydrodynamic Lift</h3>
+        <p>
+          The planing lift coefficient is a regression function of deadrise angle $\beta$,
+          mean wetted length-to-beam ratio $\lambda$, and beam Froude number.
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">Planing Lift</div>
+          <div class="eq-math">$$C_L = C_{L0} - 0.0065\beta C_{L0}^{0.60}$$</div>
+          <p>Deadrise correction reduces lift for warped-section hulls with $\beta &gt; 0^\circ$.</p>
+        </div>
+
+        <h3>Skin Friction</h3>
+        <p>
+          Skin friction is based on the ITTC-1957 correlation line using mean wetted area.
+          A roughness penalty is applied over smooth-plate friction to capture real-surface effects.
+        </p>
+
+        <h3>Validity Range</h3>
+        <p>
+          The method is valid for beam Froude numbers Fn<sub>B</sub> ≥ 0.6, deadrise 0°–30°,
+          and length-to-beam ratios 2–7. Below Fn<sub>B</sub> = 0.6 the hull is outside the planing regime.
+        </p>
+      </div>
+
+      <div class="theory-right">
+        <span class="theory-tag">Output Breakdown</span>
+        <h2>Performance Metrics</h2>
+        <p class="theory-meta">Five independently computed result groups</p>
+
+        <div class="component-cards">
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--teal">Froude</span>
+              <strong>Vessel Specs</strong>
+            </div>
+            <p>Beam and volumetric Froude numbers, displacement volume and hull mass confirm the planing regime and loading state.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--amber">Attitude</span>
+              <strong>Equilibrium</strong>
+            </div>
+            <p>Running trim angle $\tau$ and heave characterise the hull's dynamic sinkage and pitch posture at speed.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--purple">Geometry</span>
+              <strong>Wetted Shape</strong>
+            </div>
+            <p>Keel and chine wetted lengths, mean $\lambda$ ratio, transom draft and wetted bottom area describe the underwater footprint.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--red">Forces</span>
+              <strong>Force Breakdown</strong>
+            </div>
+            <p>Hydrodynamic lift, skin friction, flap contribution and net force vectors are reported in the body-fixed frame.</p>
+          </div>
+
+          <div class="component-card">
+            <div class="component-head">
+              <span class="comp-tag comp-tag--green">Power</span>
+              <strong>Propulsion</strong>
+            </div>
+            <p>Required thrust magnitude, effective power in kW and equivalent horsepower support propulsion system sizing.</p>
+          </div>
+        </div>
+
+        <span class="theory-tag" style="margin-top:2rem; display:block;">Operating Guide</span>
+        <h2>Simulation Guide</h2>
+
+        <div class="tutorial-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>Hull Geometry</h4>
+            <p>Set overall length, beam, deadrise angle, LCG and VCG. The 3D canvas renders a prismatic planing hull that updates live.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>Trim Flap &amp; Sea State</h4>
+            <p>Configure trim flap chord, deflection, propulsion angle and significant wave height for added resistance in waves.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>Analyse Results</h4>
+            <p>Switch to <strong>Result Plots</strong> for force breakdown charts, or open <strong>Data Table</strong> for numeric output and CSV export.</p>
+          </div>
+        </div>
+
+        <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="app-workspace">
+  <section class="control-panel">
+    <div class="panel-header">
+      <span class="panel-badge">Savitsky · Planing Hull Dynamics</span>
+      <h1 class="panel-title">Planing Hull Solver</h1>
+
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Hull Geometry</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-speed">Speed (m/s) <span class="input-val" id="val-speed">13.1 m/s</span></label>
+        <input type="range" class="range-slider" id="sl-speed" min="2" max="40" step="0.1" value="13.07">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-weight">Weight (N) <span class="input-val" id="val-weight">827 kN</span></label>
+        <input type="range" class="range-slider" id="sl-weight" min="50000" max="5000000" step="10000" value="827400">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-beam">Beam (m) <span class="input-val" id="val-beam">7.32 m</span></label>
+        <input type="range" class="range-slider" id="sl-beam" min="1" max="20" step="0.05" value="7.315">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-length">Length (m) <span class="input-val" id="val-length">24.4 m</span></label>
+        <input type="range" class="range-slider" id="sl-length" min="5" max="80" step="0.1" value="24.38">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-lcg">LCG (m) <span class="input-val" id="val-lcg">10.67 m</span></label>
+        <input type="range" class="range-slider" id="sl-lcg" min="1" max="40" step="0.05" value="10.67">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-vcg">VCG (m) <span class="input-val" id="val-vcg">1.05 m</span></label>
+        <input type="range" class="range-slider" id="sl-vcg" min="0.1" max="5" step="0.01" value="1.045">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-beta">Deadrise Angle β (°) <span class="input-val" id="val-beta">15.0°</span></label>
+        <input type="range" class="range-slider" id="sl-beta" min="0" max="30" step="0.5" value="15">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Trim Flap &amp; Propulsion</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-epsilon">Thrust Angle ε (°) <span class="input-val" id="val-epsilon">0.0°</span></label>
+        <input type="range" class="range-slider" id="sl-epsilon" min="-10" max="15" step="0.5" value="0">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-lf">Flap Chord Lf (m) <span class="input-val" id="val-lf">0.305 m</span></label>
+        <input type="range" class="range-slider" id="sl-lf" min="0" max="1" step="0.005" value="0.3048">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-sigma">Flap Span Ratio σ <span class="input-val" id="val-sigma">1.00</span></label>
+        <input type="range" class="range-slider" id="sl-sigma" min="0" max="1" step="0.01" value="1.0">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-delta">Flap Deflection δ (°) <span class="input-val" id="val-delta">5.0°</span></label>
+        <input type="range" class="range-slider" id="sl-delta" min="0" max="15" step="0.5" value="5">
+      </div>
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Sea State</div>
+
+      <div class="input-group">
+        <label class="input-label" for="sl-hsig">Sig. Wave Height H<sub>sig</sub> (m) <span class="input-val" id="val-hsig">1.40 m</span></label>
+        <input type="range" class="range-slider" id="sl-hsig" min="0" max="5" step="0.05" value="1.402">
+      </div>
+
+      <div class="config-row">
+        <span class="config-label">Wetted Length Method</span>
+        <div class="btn-group">
+          <button class="btn-toggle" id="wl-1" data-wl="1">Type 1</button>
+          <button class="btn-toggle" id="wl-2" data-wl="2">Type 2</button>
+          <button class="btn-toggle active" id="wl-3" data-wl="3">Type 3</button>
+        </div>
+      </div>
+
+      <div class="config-row" style="margin-top:0.6rem;">
+        <span class="config-label">Roughness Penalty</span>
+        <div class="btn-group">
+          <button class="btn-toggle" id="rp-1" data-rp="1">Type 1</button>
+          <button class="btn-toggle active" id="rp-2" data-rp="2">Type 2</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section run-section">
+      <button class="btn-run" id="btn-run">▶ Run Simulation</button>
+    </div>
+
+    <div class="telemetry-wrapper">
+      <div class="input-label telemetry-title">Performance Summary</div>
+
+      <div class="telemetry-deck">
+        <div class="telemetry-item"><span class="telemetry-label">Fn (Beam):</span><span class="telemetry-val" id="t-fnb">—</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Trim τ:</span><span class="telemetry-val" id="t-tau">— °</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Wetted Area:</span><span class="telemetry-val" id="t-wsa">— m²</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">λ (mean):</span><span class="telemetry-val" id="t-lambda">—</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Thrust (N):</span><span class="telemetry-val" id="t-thrust">— kN</span></div>
+        <div class="telemetry-item"><span class="telemetry-label">Eff. Power:</span><span class="telemetry-val" id="t-power">— kW</span></div>
+        <div class="telemetry-item total-row"><span class="telemetry-label highlight-text">Horsepower:</span><span class="telemetry-val total-val" id="t-hp">— HP</span></div>
+      </div>
+
+      <div class="api-status-bar">
+        <div class="api-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">READY</span>
+        </div>
+        <div class="hud-inline">L/B: <span id="hud-lb">—</span> · β: <span id="hud-beta">—</span>°</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace-right">
+    <div class="split-viewport-container">
+      <section class="viewport-container visualizer-panel">
+        <div class="cad-toolbar">
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+            <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+            <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+            <button class="cad-btn" id="btn-wireframe">🌐 Toggle Mesh</button>
+            <button class="cad-btn" id="btn-download-img">📸 Download Image</button>
+          </div>
+          <div class="aspect-ratio-hud">L/B: <span id="val-aspect">3.33</span> | β: <span id="val-beta-hud">15.0°</span></div>
+        </div>
+
+        <div class="canvas-wrap">
+          <div id="canvas-3d-target"></div>
+          <div class="loading-overlay" id="loading-overlay"><div class="loading-spinner"></div></div>
+        </div>
+      </section>
+
+      <section class="viewport-container chart-panel is-hidden">
+        <div class="cad-toolbar chart-toolbar">
+          <div class="chart-title-hud">PERFORMANCE BREAKDOWN</div>
+          <div class="cad-actions">
+            <label for="chart-mode"></label>
+            <select id="chart-mode" class="cad-select">
+              <option value="forces">Force Components (N)</option>
+              <option value="power">Power &amp; Thrust</option>
+              <option value="geometry">Running Geometry</option>
+              <option value="seaway">Seaway Behaviour</option>
+            </select>
+            <button class="cad-btn" id="btn-export-curve-csv">📊 Export CSV</button>
+          </div>
+        </div>
+        <div id="plot-target"></div>
+      </section>
+
+      <section class="viewport-container table-panel is-hidden">
+        <div class="cad-toolbar table-toolbar">
+          <div class="chart-title-hud">FULL RESULT MATRIX</div>
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-export-full-csv">📊 Export Full Report CSV</button>
+          </div>
+        </div>
+        <div id="table-target">
+          <div class="data-table-empty">Awaiting solver data from API…</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+
+<script>
+  window.NAVALAI_ASSETS = {
+    savitskyApi: "{% url 'savitsky:savitsky_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+
+<script defer src="{% static 'resistance/js/app_savitsky.js' %}"></script>
+{% endblock %}

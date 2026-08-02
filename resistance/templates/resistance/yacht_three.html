@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Three-Parameter Yacht Resistance Solver — NavalAI{% endblock %}
+{% block meta_description %}Free AI-assisted three-parameter yacht resistance solver. Enter only waterline length, beam and draft to predict displacement, prismatic coefficient, LCB, frictional resistance, residuary resistance and total resistance with 3D hull visualization.{% endblock %}
+{% block og_title %}Three-Parameter Yacht Resistance Solver — NavalAI{% endblock %}
+{% block og_description %}AI-assisted yacht hydrodynamics solver using only L, B and T to estimate hull-form parameters and resistance curves with 3D visualization and CSV export.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/yacht-three/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/yacht-three/{% endblock %}
+{% block og_image %}{% static 'core/img/Yacht three paremeters.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Three-Parameter Yacht Resistance Solver",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "AI-assisted yacht resistance solver using only waterline length, beam and draft to predict hull-form parameters and resistance curves.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'resistance/css/app_yacht_three.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="status-indicator">
+    <span class="status-dot ok" id="status-dot"></span>
+    <span class="status-text" id="status-text">READY</span>
+  </div>
+
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Analytical Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="theory-overlay" id="theory-overlay">
+  <div class="theory-modal">
+    <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+    <div class="theory-grid">
+      <div class="theory-left">
+        <span class="theory-tag">AI-Augmented Solver</span>
+        <h2>Three-Parameter Yacht Hydrodynamics</h2>
+        <p class="theory-meta">ML Form Prediction &amp; ITTC-1957 Friction Line</p>
+
+        <p>
+          This solver requires only three primary hull dimensions — Length on Waterline ($L$),
+          Beam ($B$), and Draft ($T$). Trained regression models infer the remaining hull-form
+          parameters: displacement, prismatic coefficient, and LCB. Total bare-hull resistance
+          separates viscous fluid friction from wave-making residual forces.
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">Total Bare-Hull Resistance</div>
+          <div class="eq-math">$$R_t = R_f + R_r$$</div>
+          <p>
+            <strong>R<sub>f</sub></strong> is viscous skin friction and
+            <strong>R<sub>r</sub></strong> is the ML-predicted wave residuary force.
+          </p>
+        </div>
+
+        <h3>Viscous Skin Friction ($R_f$)</h3>
+        <p>
+          Frictional scaling is derived from the ITTC correlation line, mapping predicted
+          wetted surface area ($S$) against the turbulent Reynolds number ($Re$).
+        </p>
+
+        <div class="equation-box">
+          <div class="eq-title">ITTC Friction Line</div>
+          <div class="eq-math">$$R_f = \frac{1}{2}\rho V^2 S C_f$$</div>
+          <p>Driven by:</p>
+          <div class="eq-math">$$C_f = \frac{0.075}{(\log_{10}(Re) - 2)^2}$$</div>
+        </div>
+      </div>
+
+      <div class="theory-right">
+        <span class="theory-tag">Full Literature</span>
+        <h2>Research Publication</h2>
+        <p class="theory-meta">Machine Learning Cascade Architecture</p>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #fff;">From Principal Dimensions to Full Hydrodynamic Characterization</h4>
+          <p style="font-size: 0.85rem; margin-bottom: 1rem; color: #ccc;">
+            Read the complete validation methodology, cascading multi-stage layout estimation
+            pipelines, and volumetric accuracy limits.
+          </p>
+          <a href=""
+             class="theory-start-btn"
+             style="display:block; text-align:center; background:#333; color:#fff; text-decoration:none; border:1px solid #555; padding:0.6rem; border-radius:4px; font-size:0.9rem;">
+            📖 Read Full Research Paper
+          </a>
+        </div>
+
+        <span class="theory-tag">Interactive Tutorial</span>
+        <h2>Simulation Guide</h2>
+        <p class="theory-meta">Operational Control Workflow</p>
+
+        <div class="tutorial-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <h4>Three-Parameter Hull Input</h4>
+            <p>Provide only Length on Waterline, Beam, and Draft. The hull geometry updates live inside the WebGL canvas as you adjust the three primary dimensions.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <h4>AI Parameter Prediction</h4>
+            <p>On each change, trained models infer displacement, prismatic coefficient, and LCB. These predicted hull-form values appear live in the telemetry deck.</p>
+          </div>
+        </div>
+
+        <div class="tutorial-step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <h4>Resistance Curve Analysis</h4>
+            <p>Switch to <strong>Analytical Plots</strong> to inspect the Rf / Rr / Rt resistance matrix across the Froude range, filter components, or export CSV.</p>
+          </div>
+        </div>
+
+        <button class="theory-start-btn" id="btn-start-sim">Launch Simulation Workspace →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="app-workspace">
+  <section class="control-panel">
+    <div class="panel-header">
+      <span class="panel-badge">Hydrodynamics · AI 3-Parameter Trial</span>
+      <h1 class="panel-title">Yacht Parameters (L · B · T)</h1>
+
+    </div>
+
+    <div class="input-section">
+      <div class="section-label">Hull Inputs</div>
+
+      <div class="input-group">
+        <label class="input-label" for="slider-length">
+          Length Waterline (L_WL) <span class="input-val" id="val-length">10.00 m</span>
+        </label>
+        <input type="range" id="slider-length" class="range-slider" min="10.00" max="10.15" step="0.01" value="10.00">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="slider-beam">
+          Beam Max Waterline (B_WL) <span class="input-val" id="val-beam">3.00 m</span>
+        </label>
+        <input type="range" id="slider-beam" class="range-slider" min="2.76" max="3.66" step="0.01" value="3.00">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="slider-draft">
+          Draft Canoe Body (T_c) <span class="input-val" id="val-draft">0.85 m</span>
+        </label>
+        <input type="range" id="slider-draft" class="range-slider" min="0.64" max="1.13" step="0.01" value="0.85">
+      </div>
+    </div>
+
+    <div class="telemetry-wrapper">
+      <div class="input-label telemetry-title">AI-Predicted Hull Parameters</div>
+      <div class="telemetry-deck">
+        <div class="telemetry-item">
+          <span class="telemetry-label">Displacement (∇):</span>
+          <span class="telemetry-val" id="out-disp">— m³</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Prismatic Coeff. (Pc):</span>
+          <span class="telemetry-val" id="out-pc">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Long. Center Buoyancy (LCB):</span>
+          <span class="telemetry-val" id="out-lcb">— %</span>
+        </div>
+      </div>
+
+      <div class="input-label telemetry-title telemetry-title--gap">Resistance @ Top Speed (Max Fn)</div>
+      <div class="telemetry-deck">
+        <div class="telemetry-item">
+          <span class="telemetry-label">Frictional Resistance (Rf):</span>
+          <span class="telemetry-val" id="out-rf">0.00 kN</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Residuary Resistance (Rr):</span>
+          <span class="telemetry-val" id="out-rr">0.00 kN</span>
+        </div>
+        <div class="telemetry-item total-row">
+          <span class="telemetry-label highlight-text">Total Resistance (Rt):</span>
+          <span class="telemetry-val total-val" id="out-rt">0.00 kN</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace-right">
+    <div class="split-viewport-container">
+      <section class="viewport-container visualizer-panel">
+        <div class="cad-toolbar">
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+            <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+            <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+            <button class="cad-btn" id="btn-download-img">📸 Image</button>
+            <button class="cad-btn" id="btn-export-csv">📊 Export CSV</button>
+            <button class="cad-btn" id="btn-wireframe">🌐 Toggle Mesh</button>
+          </div>
+
+          <div class="aspect-ratio-hud">
+            L/B RATIO: <span id="val-aspect">3.33</span> |
+            FROUDE (max): <span id="val-froude">0.00</span>
+          </div>
+        </div>
+
+        <div id="canvas-3d-target">
+          <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Computing…</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="viewport-container chart-panel is-hidden">
+        <div class="cad-toolbar chart-toolbar">
+          <div class="chart-title-hud">
+            RESISTANCE vs FROUDE CHARACTERISTICS | FN(max): <span id="hud-fn">0.000</span>
+          </div>
+
+          <div class="cad-actions">
+            <label for="chart-metric-filter"></label>
+            <select id="chart-metric-filter" class="cad-select">
+              <option value="all">All Curves (Rf, Rr, Rt)</option>
+              <option value="rf">Frictional Resistance (Rf)</option>
+              <option value="rr">Residuary Resistance (Rr)</option>
+              <option value="rt">Total Resistance (Rt)</option>
+            </select>
+
+            <button class="cad-btn" id="btn-export-curve-csv">📊 Export Curve CSV</button>
+          </div>
+        </div>
+
+        <div id="plot-target"></div>
+      </section>
+
+      <section class="viewport-container table-panel is-hidden">
+        <div class="cad-toolbar table-toolbar">
+          <div class="chart-title-hud">PREDICTED HULL PARAMETERS &amp; RESISTANCE MATRIX</div>
+          <div class="cad-actions">
+            <button class="cad-btn" id="btn-export-full-csv">📊 Export Full Report CSV</button>
+          </div>
+        </div>
+
+        <div id="table-target">
+          <div class="data-table-empty">Awaiting solver data from API…</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.NAVALAI_ASSETS = {
+    yachtThreeApi: "{% url 'yacht_three:yacht_three_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    three: "{% static 'core/js/three.min.js' %}",
+    orbitControls: "{% static 'core/js/OrbitControls.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+<script defer src="{% static 'resistance/js/app_yacht_three.js' %}"></script>
+{% endblock %}

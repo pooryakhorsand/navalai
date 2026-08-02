@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Wageningen B-Series Propeller Open Water Solver — NavalAI{% endblock %}
+{% block meta_description %}Free interactive Wageningen B-Series propeller open-water performance solver. Compute KT, KQ, 10KQ, open-water efficiency, optimum advance coefficient, Reynolds-corrected curves, 3D propeller visualization, and exportable data tables.{% endblock %}
+{% block og_title %}Wageningen B-Series Propeller Open Water Solver — NavalAI{% endblock %}
+{% block og_description %}Interactive B-Series propeller solver with open-water KT, 10KQ and efficiency curves, optimum telemetry, 3D propeller visualization, and CSV export.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/propeller/b-series/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/propeller/b-series/{% endblock %}
+{% block og_image %}{% static 'core/img/B.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Wageningen B-Series Propeller Solver",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive Wageningen B-Series propeller open-water solver computing thrust coefficient, torque coefficient, open-water efficiency, optimum advance coefficient, and performance curves.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'propeller/css/app_B.css' %}">
+<style>
+  .eq-math {
+    font-size: 1.08rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .equation-box {
+    overflow-x: auto;
+  }
+
+  .eq-math .katex-display {
+    margin: 0.35rem 0 0 !important;
+  }
+</style>
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper">
+    <button id="toggle-cad" class="btn-switch-view active-view">3D CAD Model</button>
+    <button id="toggle-plots" class="btn-switch-view">Analytical Plots</button>
+    <button id="toggle-table" class="btn-switch-view">Data Table</button>
+  </div>
+  <button class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+  <div class="theory-overlay" id="theory-overlay">
+    <div class="theory-modal">
+      <button class="theory-close" id="btn-close-theory">✕ Close &amp; Explore App</button>
+
+      <div class="theory-grid">
+        <div class="theory-left">
+          <span class="theory-tag">Hydrodynamics Standard</span>
+          <h2>Wageningen B-Series Analysis</h2>
+          <p class="theory-meta">
+            Mathematical verification of open-water performance characteristics
+            using standardized polynomial calculations scaled by exact Reynolds corrections.
+          </p>
+
+          <p>
+            Open-water performance is plotted as non-dimensional coefficients across
+            variations of the advance coefficient \(J\):
+          </p>
+
+          <div class="equation-box">
+            <div class="eq-title">Advance Coefficient Equation</div>
+            <div class="eq-math">
+              \[
+              J = \frac{V_A}{nD}
+              \]
+            </div>
+            <p>
+              Relates the velocity of advance \(V_A\) to rotational frequency \(n\)
+              and propeller diameter \(D\).
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Thrust &amp; Torque Coefficients</div>
+
+            <div class="eq-math">
+              \[
+              K_T = \frac{T}{\rho n^2 D^4}
+              \]
+            </div>
+
+            <div class="eq-math" style="margin-top:0.35rem; color:var(--amber);">
+              \[
+              K_Q = \frac{Q}{\rho n^2 D^5}
+              \]
+            </div>
+
+            <div class="eq-math" style="margin-top:0.35rem; color:var(--teal);">
+              \[
+              10K_Q = 10\left(\frac{Q}{\rho n^2 D^5}\right)
+              \]
+            </div>
+
+            <p>
+              These coefficients are evaluated dynamically using the standard
+              Wageningen B-Series regression polynomials.
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Open-Water Propulsion Efficiency</div>
+            <div class="eq-math" style="color:var(--teal);">
+              \[
+              \eta_0 = \frac{J\,K_T}{2\pi K_Q}
+              \]
+            </div>
+            <p>
+              Represents the ratio between useful propulsive power output and shaft power input.
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Valid Regression Domain</div>
+            <p>
+              \( Z = 2 \text{ to } 7 \) blades &nbsp;·&nbsp;
+              \( A_E/A_O = 0.30 \text{ to } 1.05 \) &nbsp;·&nbsp;
+              \( P/D = 0.50 \text{ to } 1.40 \) &nbsp;·&nbsp;
+              \( Re = 2\times10^6 \text{ to } 9\times10^6 \)
+            </p>
+            <p style="margin-top:0.6rem;">
+              Curves are truncated at the first advance ratio where
+              \(K_T\) or \(K_Q\) leaves the validated regression range,
+              instead of being extrapolated beyond the documented domain.
+            </p>
+          </div>
+        </div>
+
+        <div class="theory-right">
+          <span class="theory-tag">Interactive Tutorial</span>
+          <h2>Application Workspace Guide</h2>
+          <p class="theory-meta">
+            Maximize workspace efficiency by interacting with the control layers:
+          </p>
+
+          <div class="tutorial-step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <h4>Real-time Parametric Scaling Sliders</h4>
+              <p>
+                Adjust blade count \(Z\), area ratio \(A_E/A_O\),
+                pitch limits \(P/D\), and Reynolds scale \(Re\)
+                to instantly recalculate performance profiles.
+              </p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <h4>Multi-Curve Dropdown Selector</h4>
+              <p>
+                Isolate and inspect individual output variables using the
+                filtering controls above the analytical diagram.
+              </p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <h4>Data Table View</h4>
+              <p>
+                Switch to the Data Table tab to inspect raw numerical output
+                for every \(P/D\) curve, along with the optimum telemetry summary.
+              </p>
+            </div>
+          </div>
+
+          <div class="tutorial-step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              <h4>Fluid Flow Viewport Engineering</h4>
+              <p>
+                Drag inside the WebGL viewport to inspect blade geometry.
+                Flow visuals and propeller form update interactively with user inputs.
+              </p>
+            </div>
+          </div>
+
+          <button class="theory-start-btn" id="btn-start-solving">
+            Launch Simulation Workspace →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="app-workspace">
+    <section class="control-panel">
+      <div class="panel-header">
+        <span class="panel-badge">Propeller · Open Water</span>
+        <h1 class="panel-title">Wageningen B-Series Solver</h1>
+
+      </div>
+
+      <div id="input-warning-banner" class="input-warning-banner"></div>
+
+      <div class="input-section">
+        <div class="section-label">Propeller Geometry</div>
+
+        <div class="input-group">
+          <label class="input-label" for="param-blades">
+            Blades Count <span>Z = <strong id="val-blades">4</strong></span>
+          </label>
+          <input type="range" id="param-blades" class="range-slider" min="2" max="7" step="1" value="4">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="param-dar">
+            Expanded Area Ratio
+            <span>A<sub>E</sub>/A<sub>O</sub> = <strong id="val-dar">0.80</strong></span>
+          </label>
+          <input type="range" id="param-dar" class="range-slider" min="0.30" max="1.05" step="0.05" value="0.80">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="param-pmin">
+            Pitch Ratio Min
+            <span>P/D<sub>min</sub> = <strong id="val-pmin">0.50</strong></span>
+          </label>
+          <input type="range" id="param-pmin" class="range-slider" min="0.50" max="1.40" step="0.05" value="0.50">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="param-pmax">
+            Pitch Ratio Max
+            <span>P/D<sub>max</sub> = <strong id="val-pmax">1.40</strong></span>
+          </label>
+          <input type="range" id="param-pmax" class="range-slider" min="0.50" max="1.40" step="0.05" value="1.40">
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="section-label">Operational Conditions</div>
+
+        <div class="input-group">
+          <label class="input-label" for="param-re">
+            Reynolds Scale <span>Re = <strong id="val-re">2,000,000</strong></span>
+          </label>
+          <input type="range" id="param-re" class="range-slider" min="2000000" max="9000000" step="500000" value="2000000">
+        </div>
+      </div>
+
+      <div class="input-section run-section">
+        <button class="btn-run" id="btn-run">▶ Calculate Performance</button>
+      </div>
+
+      <div class="telemetry-wrapper">
+        <div class="input-label telemetry-title">Optimum Peak Telemetry</div>
+
+        <div class="telemetry-deck">
+          <div class="telemetry-item">
+            <span class="telemetry-label">Advance Coeff. (J)</span>
+            <span id="out-j" class="telemetry-val">0.000</span>
+          </div>
+
+          <div class="telemetry-item">
+            <span class="telemetry-label">Thrust Coeff. (K<sub>T</sub>)</span>
+            <span id="out-kt" class="telemetry-val">0.000</span>
+          </div>
+
+          <div class="telemetry-item total-row">
+            <span class="telemetry-label highlight-text">Max Open Eff. (η<sub>0</sub>)</span>
+            <span id="out-eff" class="telemetry-val total-val">0.0%</span>
+          </div>
+        </div>
+
+        <div class="api-status-bar">
+          <div class="api-status">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">READY</span>
+          </div>
+
+          <div class="hud-inline">
+            Z: <span id="hud-blades">4</span> ·
+            A<sub>E</sub>/A<sub>O</sub>: <span id="hud-dar">0.80</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace-right">
+      <div class="split-viewport-container">
+        <section class="viewport-container visualizer-panel">
+          <div class="cad-toolbar">
+            <div class="cad-actions">
+              <button class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+              <button class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+              <button class="cad-btn" id="btn-toggle-mesh">🌐 Toggle Mesh</button>
+              <button class="cad-btn" id="btn-reset-view">🔄 Reset View</button>
+              <button class="cad-btn" id="btn-download-img">📸 Image</button>
+            </div>
+
+            <div class="aspect-ratio-hud">
+              BLADES: <span id="live-blade-count">4</span> |
+              DAR: <span id="live-dar">0.80</span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <div id="canvas-3d-target"></div>
+
+            <div class="loading-overlay" id="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="viewport-container chart-panel is-hidden">
+          <div class="cad-toolbar chart-toolbar">
+            <div class="chart-title-hud">OPEN-WATER MATRIX CHARACTERISTICS</div>
+
+            <div class="cad-actions">
+              <label for="chart-metric-filter"></label>
+              <select id="chart-metric-filter" class="cad-select">
+                <option value="all">All Curves (K<sub>T</sub>, 10·K<sub>Q</sub>, η<sub>0</sub>)</option>
+                <option value="kt">Thrust Coefficient (K<sub>T</sub>)</option>
+                <option value="kq">Torque Coefficient (10·K<sub>Q</sub>)</option>
+                <option value="eta">Open-Water Efficiency (η<sub>0</sub>)</option>
+              </select>
+
+              <button class="cad-btn" id="btn-export-csv">📊 Export CSV</button>
+            </div>
+          </div>
+
+          <div id="plot-target"></div>
+        </section>
+
+        <section class="viewport-container table-panel is-hidden">
+          <div class="cad-toolbar chart-toolbar">
+            <div class="chart-title-hud">FULL CURVE DATA MATRIX</div>
+            <div class="cad-actions">
+              <button class="cad-btn" id="btn-export-csv-table">📊 Export Full Report CSV</button>
+            </div>
+          </div>
+
+          <div id="table-target" class="table-scroll-container"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+
+<script>
+  window.NAVALAI_ASSETS = {
+    bSeriesApi: "{% url 'b_series:b_series_calculate' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+
+<script defer src="{% static 'propeller/js/app_B.js' %}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var tableExportBtn = document.getElementById('btn-export-csv-table');
+    if (tableExportBtn) {
+      tableExportBtn.addEventListener('click', function () {
+        var mainExportBtn = document.getElementById('btn-export-csv');
+        if (mainExportBtn) mainExportBtn.click();
+      });
+    }
+
+    function ensureKatexRender() {
+      if (typeof window.renderMathInElement === 'function') {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false,
+          strict: false,
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        });
+      }
+    }
+
+    setTimeout(ensureKatexRender, 350);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Japanese AU-Series Propeller Open Water Solver — NavalAI{% endblock %}
+{% block meta_description %}Free interactive Japanese AU-Series propeller open-water performance solver. Compute KT, 10KQ, open-water efficiency, optimum advance coefficient, blade section geometry, 3D propeller visualization, analytical plots, and CSV data export.{% endblock %}
+{% block og_title %}Japanese AU-Series Propeller Open Water Solver — NavalAI{% endblock %}
+{% block og_description %}Interactive AU-Series propeller solver with KT, 10KQ and efficiency curves, blade section profile, 3D propeller geometry, optimum telemetry, and exportable numerical data.{% endblock %}
+{% block canonical_url %}https://YOURDOMAIN.com/propeller/au-series/{% endblock %}
+{% block og_url %}https://YOURDOMAIN.com/propeller/au-series/{% endblock %}
+{% block og_image %}{% static 'core/img/AU.png' %}{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "NavalAI Japanese AU-Series Propeller Solver",
+  "applicationCategory": "EngineeringApplication",
+  "operatingSystem": "Any (Web-based)",
+  "description": "Interactive Japanese AU-Series propeller open-water solver computing thrust coefficient, scaled torque coefficient, open-water efficiency, optimum telemetry, and blade section geometry.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'propeller/css/app_au.css' %}">
+{% endblock %}
+
+{% block nav_controls %}
+<div class="nav-controls-cluster">
+  <div class="cad-toggle-wrapper" role="group" aria-label="Workspace view selector">
+    <button type="button" id="toggle-cad" class="btn-switch-view active-view" aria-pressed="true">3D CAD Model</button>
+    <button type="button" id="toggle-plots" class="btn-switch-view" aria-pressed="false">Analytical Plots</button>
+    <button type="button" id="toggle-table" class="btn-switch-view" aria-pressed="false">Data Table</button>
+  </div>
+  <button type="button" class="nav-cta" id="btn-open-theory">Theory &amp; Research</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+  <div
+    class="theory-overlay"
+    id="theory-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="theory-title">
+
+    <div class="theory-modal">
+      <button
+        type="button"
+        class="theory-close"
+        id="btn-close-theory"
+        aria-label="Close theory and research dialog">
+        ✕ Close &amp; Explore App
+      </button>
+
+      <div class="theory-grid">
+        <div class="theory-left">
+          <span class="theory-tag">Propeller Design Standard</span>
+
+          <h2 id="theory-title">Japanese AU-Series Analysis</h2>
+
+          <p class="theory-meta">
+            Open-water performance is obtained from a four-parameter
+            polynomial regression. The blade section geometry is generated
+            from the Table 6.8 offset dataset.
+          </p>
+
+          <p>
+            The solver evaluates the advance coefficient \(J\), thrust
+            coefficient \(K_T\), torque coefficient \(K_Q\), and open-water
+            efficiency \(\eta_0\) throughout the selected operating range.
+          </p>
+
+          <div class="equation-box">
+            <div class="eq-title">Advance Coefficient</div>
+            <div class="eq-math">
+              \[
+                J = \frac{V_A}{nD}
+              \]
+            </div>
+            <p>
+              \(V_A\) is the propeller advance velocity, \(n\) is the
+              rotational frequency in revolutions per second, and \(D\)
+              is the propeller diameter.
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Dimensionless Thrust and Torque Coefficients</div>
+
+            <div class="eq-math">
+              \[
+                K_T = \frac{T}{\rho n^2 D^4}
+              \]
+            </div>
+
+            <div class="eq-math eq-math--highlight">
+              \[
+                K_Q = \frac{Q}{\rho n^2 D^5}
+              \]
+            </div>
+
+            <p>
+              Here, \(T\) represents propeller thrust, \(Q\) represents
+              shaft torque, and \(\rho\) is the fluid density.
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">AU-Series Thrust Polynomial</div>
+
+            <div class="eq-math">
+              \[
+                K_T =
+                \sum_{i=1}^{N_T}
+                C_{T,i}
+                J^{s_i}
+                \left(\frac{P}{D}\right)^{t_i}
+                \left(\frac{A_E}{A_0}\right)^{u_i}
+                Z^{v_i}
+              \]
+            </div>
+
+            <p>
+              The polynomial depends on advance coefficient \(J\), pitch
+              ratio \(P/D\), expanded area ratio \(A_E/A_0\), and blade
+              count \(Z\).
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">AU-Series Scaled Torque Polynomial</div>
+
+            <div class="eq-math eq-math--highlight">
+              \[
+                10K_Q =
+                \sum_{i=1}^{N_Q}
+                C_{Q,i}
+                J^{s_i}
+                \left(\frac{P}{D}\right)^{t_i}
+                \left(\frac{A_E}{A_0}\right)^{u_i}
+                Z^{v_i}
+              \]
+            </div>
+
+            <p>
+              The analytical chart displays the scaled torque ordinate
+              \(10K_Q\). The physical torque coefficient is therefore
+              \(K_Q=(10K_Q)/10\).
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Open-Water Efficiency</div>
+
+            <div class="eq-math eq-math--highlight">
+              \[
+                \eta_0 =
+                \frac{J K_T}{2\pi K_Q}
+                =
+                \frac{5J K_T}{\pi(10K_Q)}
+              \]
+            </div>
+
+            <p>
+              The first expression uses \(K_Q\), while the equivalent
+              second expression can be used directly when the solver
+              returns the scaled value \(10K_Q\).
+            </p>
+          </div>
+
+          <div class="equation-box">
+            <div class="eq-title">Non-Dimensional Section Station</div>
+
+            <div class="eq-math">
+              \[
+                \frac{r}{R} = \frac{2r}{D}
+              \]
+            </div>
+
+            <p>
+              The section station \(r/R\) identifies the radial position
+              of the selected two-dimensional blade profile, where
+              \(R=D/2\).
+            </p>
+          </div>
+        </div>
+
+        <div class="theory-right">
+          <span class="theory-tag">Simulation Workflow</span>
+
+          <h2>How the Solver Works</h2>
+
+          <p class="theory-meta">
+            The simulation connects the user inputs, Django calculation
+            backend, analytical charts, tabular output, and interactive
+            three-dimensional geometry.
+          </p>
+
+          <div class="component-cards">
+            <div class="component-card">
+              <div class="component-head">
+                <span class="comp-tag comp-tag--teal">Inputs</span>
+                <strong>Blade Parameters</strong>
+              </div>
+              <p>
+                Select blade count \(Z\), expanded area ratio
+                \(A_E/A_0\), pitch ratio \(P/D\), diameter \(D\), and
+                radial section station \(r/R\).
+              </p>
+            </div>
+
+            <div class="component-card">
+              <div class="component-head">
+                <span class="comp-tag comp-tag--amber">Solver</span>
+                <strong>Django Backend</strong>
+              </div>
+              <p>
+                The selected parameters are posted to the numerical
+                engine, which returns the full \(J\)-sweep containing
+                \(K_T\), \(10K_Q\), and \(\eta_0\).
+              </p>
+            </div>
+
+            <div class="component-card">
+              <div class="component-head">
+                <span class="comp-tag comp-tag--purple">Geometry</span>
+                <strong>Table 6.8 Sections</strong>
+              </div>
+              <p>
+                The selected section station retrieves the corresponding
+                face and back offsets required to construct the blade
+                profile.
+              </p>
+            </div>
+
+            <div class="component-card">
+              <div class="component-head">
+                <span class="comp-tag comp-tag--green">3D View</span>
+                <strong>Lofted Propeller Blade</strong>
+              </div>
+              <p>
+                The WebGL viewport lofts the returned section geometry
+                across the radial stations and replicates the blade
+                according to the selected blade count.
+              </p>
+            </div>
+
+            <div class="component-card">
+              <div class="component-head">
+                <span class="comp-tag comp-tag--red">Output</span>
+                <strong>Charts and Numerical Data</strong>
+              </div>
+              <p>
+                Inspect the open-water curves, optimum efficiency point,
+                section profile, and complete numerical data table.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="theory-start-btn"
+            id="btn-start-sim">
+            Launch Simulation Workspace →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="app-workspace">
+    <section
+      class="control-panel"
+      aria-labelledby="solver-title">
+
+      <div class="panel-header">
+        <span class="panel-badge">Propeller · AU-Series Open Water</span>
+
+        <h1
+          class="panel-title"
+          id="solver-title">
+          AU-Series Solver
+        </h1>
+
+
+      </div>
+
+      <div class="input-section">
+        <div class="section-label">Propeller Geometry</div>
+
+        <div class="input-group">
+          <label class="input-label" for="sl-Z">
+            Blades Count
+            <span class="input-val" id="val-Z">5</span>
+          </label>
+          <input
+            type="range"
+            class="range-slider"
+            id="sl-Z"
+            min="4"
+            max="7"
+            step="1"
+            value="5">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="sl-AE">
+            Expanded Area Ratio
+            <span class="input-val" id="val-AE">0.55</span>
+          </label>
+          <input
+            type="range"
+            class="range-slider"
+            id="sl-AE"
+            min="0.40"
+            max="0.76"
+            step="0.01"
+            value="0.55">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="sl-PD">
+            Pitch Ratio
+            <span class="input-val" id="val-PD">1.00</span>
+          </label>
+          <input
+            type="range"
+            class="range-slider"
+            id="sl-PD"
+            min="0.40"
+            max="1.40"
+            step="0.01"
+            value="1.00">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="sl-D">
+            Diameter
+            <span class="input-val" id="val-D">4.00 m</span>
+          </label>
+          <input
+            type="range"
+            class="range-slider"
+            id="sl-D"
+            min="0.5"
+            max="12.0"
+            step="0.05"
+            value="4.0">
+        </div>
+
+        <div class="input-group input-group-final">
+          <label class="input-label" for="sl-rR">
+            Section Station
+            <span class="input-val" id="val-rR">0.70</span>
+          </label>
+
+          <select
+            id="sl-rR"
+            class="select-input"
+            aria-label="Select radial section station">
+            <option value="0.20">0.20 — Root</option>
+            <option value="0.30">0.30</option>
+            <option value="0.40">0.40</option>
+            <option value="0.50">0.50</option>
+            <option value="0.60">0.60</option>
+            <option value="0.70" selected>0.70</option>
+            <option value="0.80">0.80</option>
+            <option value="0.90">0.90</option>
+            <option value="0.95">0.95 — Near tip</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="telemetry-wrapper">
+        <div class="input-label telemetry-title">Optimum Peak Telemetry</div>
+
+        <div class="telemetry-deck">
+          <div class="telemetry-item">
+            <span class="telemetry-label">Advance Coeff. (J)</span>
+            <span class="telemetry-val" id="out-j">—</span>
+          </div>
+
+          <div class="telemetry-item">
+            <span class="telemetry-label">Thrust Coeff. (K<sub>T</sub>)</span>
+            <span class="telemetry-val" id="out-kt">—</span>
+          </div>
+
+          <div class="telemetry-item">
+            <span class="telemetry-label">Torque (10·K<sub>Q</sub>)</span>
+            <span class="telemetry-val" id="out-kq">—</span>
+          </div>
+
+          <div class="telemetry-item total-row">
+            <span class="telemetry-label highlight-text">Max Open Eff. (η<sub>0</sub>)</span>
+            <span class="telemetry-val total-val" id="out-eff">—</span>
+          </div>
+        </div>
+
+        <div class="api-status-bar">
+          <div class="api-status">
+            <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+            <span id="status-text">READY</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace-right">
+      <div class="split-viewport-container">
+
+        <section
+          class="viewport-container visualizer-panel"
+          aria-label="Three-dimensional propeller model">
+
+          <div class="cad-toolbar">
+            <div id="live-blade-tag" class="aspect-ratio-hud">
+              Z:
+              <span>5</span>
+              |
+              A<sub>E</sub>/A<sub>0</sub>:
+              <span>0.55</span>
+              |
+              P/D:
+              <span>1.00</span>
+            </div>
+
+            <div class="cad-actions">
+              <button type="button" class="cad-btn" id="btn-zoom-in">➕ Zoom In</button>
+              <button type="button" class="cad-btn" id="btn-zoom-out">➖ Zoom Out</button>
+              <button type="button" class="cad-btn" id="btn-toggle-mesh">🌐 Toggle Mesh</button>
+              <button type="button" class="cad-btn" id="btn-reset">🔄 Reset View</button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <div
+              id="canvas-3d-target"
+              aria-label="Interactive propeller WebGL viewport">
+            </div>
+
+            <div
+              class="loading-overlay"
+              id="loading-overlay"
+              aria-hidden="true">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="viewport-container chart-panel is-hidden"
+          aria-label="AU-Series analytical charts">
+
+          <div class="cad-toolbar chart-toolbar">
+            <div class="chart-title-hud">
+              AU-SERIES OPEN-WATER &amp; SECTION CHARTS
+            </div>
+
+            <div class="cad-actions">
+              <label for="chart-metric-filter" hidden>Select analytical chart</label>
+
+              <select
+                id="chart-metric-filter"
+                class="cad-select">
+                <option value="all">All Curves (KT, 10·KQ, η0)</option>
+                <option value="kt">Thrust Coefficient (KT)</option>
+                <option value="kq">Torque Coefficient (10·KQ)</option>
+                <option value="eta">Open-Water Efficiency (η0)</option>
+                <option value="section">Blade Section Profile (r/R)</option>
+              </select>
+
+              <button
+                type="button"
+                class="cad-btn"
+                id="btn-export-csv">
+                📊 Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="plot-target"
+            aria-label="AU-Series Plotly chart">
+          </div>
+        </section>
+
+        <section
+          class="viewport-container table-panel is-hidden"
+          aria-label="AU-Series numerical data table">
+
+          <div class="cad-toolbar chart-toolbar">
+            <div class="chart-title-hud">
+              AU-SERIES NUMERICAL RECORD
+            </div>
+
+            <div class="cad-actions">
+              <button
+                type="button"
+                class="cad-btn"
+                id="btn-export-full-csv">
+                📊 Export Full Report CSV
+              </button>
+            </div>
+          </div>
+
+          <div id="table-target">
+            <div class="data-table-empty">
+              Awaiting simulation data — adjust a parameter to begin.
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'core/js/plotly-basic-2.24.1.min.js' %}"></script>
+<script defer src="{% static 'core/js/three.min.js' %}"></script>
+<script defer src="{% static 'core/js/OrbitControls.js' %}"></script>
+<script defer src="{% static 'core/js/nav.js' %}"></script>
+
+<script>
+  window.NAVALAI_ASSETS = {
+    auApi: "{% url 'au_series:au_main' %}",
+    plotly: "{% static 'core/js/plotly-basic-2.24.1.min.js' %}",
+    katexCss: "{% static 'core/css/katex/katex.min.css' %}",
+    katexJs: "{% static 'core/js/katex.min.js' %}",
+    katexAutoRender: "{% static 'core/js/auto-render.min.js' %}"
+  };
+</script>
+
+<script defer src="{% static 'propeller/js/app_au.js' %}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function ensureKatexRender() {
+      var theoryContainer = document.getElementById('theory-overlay');
+
+      if (
+        theoryContainer &&
+        typeof window.renderMathInElement === 'function'
+      ) {
+        window.renderMathInElement(theoryContainer, {
+          delimiters: [
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false,
+          strict: false,
+          ignoredTags: [
+            'script',
+            'noscript',
+            'style',
+            'textarea',
+            'pre',
+            'code'
+          ]
+        });
+      }
+    }
+
+    setTimeout(ensureKatexRender, 350);
+  });
+</script>
+{% endblock %}
